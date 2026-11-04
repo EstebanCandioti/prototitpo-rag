@@ -29,7 +29,7 @@ La firma incluye el corpus, el código de indexación/troceado, el modelo y su d
 
 ## Persistencia, acceso y cuota
 
-Los datos de PostgreSQL y el modelo se guardan bajo `.codespaces-data/`, dentro del workspace persistente. Ese directorio está excluido de Git. Se conservan al detener/reanudar o reconstruir el entorno, pero **eliminar el Codespace elimina su almacenamiento**. Una nueva instancia puede reconstruirse desde el corpus.
+El modelo se guarda bajo `.codespaces-data/ollama/`, dentro del workspace persistente y excluido de Git. PostgreSQL usa el volumen Docker `postgres-data` para conservar sus permisos, porque Codespaces ajusta los permisos del workspace. Ambos se conservan al detener/reanudar. Una reconstrucción completa puede eliminar los volúmenes Docker; en ese caso el comando de preparación vuelve a generar el índice usando el modelo guardado. **Eliminar el Codespace elimina su almacenamiento**. Una nueva instancia puede reconstruirse desde el corpus.
 
 La preparación rechaza ejecutarse contra `localhost`, otra base o un modelo diferente: solo trabaja con los servicios `postgres/rag_demo` y `ollama` del entorno de prueba. Las credenciales de esa base son exclusivamente de desarrollo y los servicios no publican puertos.
 
