@@ -4,6 +4,9 @@
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "remoteUser": "node",
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": { "version": "latest" }
+  },
   "hostRequirements": { "cpus": 2, "memory": "8gb", "storage": "32gb" },
   "forwardPorts": [3000],
   "portsAttributes": {
