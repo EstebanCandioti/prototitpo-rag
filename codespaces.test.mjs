@@ -8,6 +8,7 @@ test('la configuración local sigue en loopback; Codespaces usa solo su dominio 
   assert.deepEqual(configuracionWeb({ CODESPACES: 'true', CODESPACE_NAME: 'demo-entre-cartas' }),
     { puerto: 3000, host: '0.0.0.0', origenPublico: 'https://demo-entre-cartas-3000.app.github.dev' });
   assert.equal(configuracionWeb({ CODESPACES: 'true', CODESPACE_NAME: 'demo', PUERTO_WEB: '3456', GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: 'app.github.dev' }).origenPublico, 'https://demo-3456.app.github.dev');
+  assert.equal(configuracionWeb({ CODESPACES: 'true', CODESPACE_NAME: 'entre-cartas---prueba-xg4vv744qq42vv47' }).origenPublico, 'https://entre-cartas---prueba-xg4vv744qq42vv47-3000.app.github.dev');
   for (const env of [{ PUERTO_WEB: 'no' }, { CODESPACES: 'true' }, { CODESPACES: 'true', CODESPACE_NAME: 'demo/otro' },
     { CODESPACES: 'true', CODESPACE_NAME: 'demo', GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: 'app.github.dev/otra' }]) assert.throws(() => configuracionWeb(env));
 });

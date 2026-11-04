@@ -4,7 +4,7 @@ export function configuracionWeb(env = process.env) {
   if (env.CODESPACES !== 'true') return { puerto, host: '127.0.0.1', origenPublico: undefined };
   const nombre = env.CODESPACE_NAME;
   const dominio = env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN ?? 'app.github.dev';
-  if (!nombre || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(nombre) || !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/.test(dominio)) {
+  if (!nombre || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(nombre) || !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/.test(dominio)) {
     throw new Error('La configuración del dominio de Codespaces no es válida.');
   }
   return { puerto, host: '0.0.0.0', origenPublico: `https://${nombre}-${puerto}.${dominio}` };
