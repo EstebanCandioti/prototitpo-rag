@@ -10,17 +10,21 @@ import { formatearContexto, limpiarRespuesta, esAbstencion } from "./contexto-re
 const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.gif': 'image/gif', '.mp4': 'video/mp4', '.webm': 'video/webm' };
-function origenPermitido(origen, host, origenPublico) {
+function origenPermitido(origen, host, origenPublico, permitirProxyLocalHttps) {
   try {
     const url = new URL(origen);
     return url.origin === origen && ((url.protocol === 'http:' && url.origin === `http://${host}`) ||
-      (url.protocol === 'https:' && origenPublico !== undefined && url.origin === origenPublico));
+      (url.protocol === 'https:' && ((origenPublico !== undefined && url.origin === origenPublico) ||
+        // El túnel de VS Code puede usar un puerto local distinto del backend.
+        // Se conserva la comprobación de mismo origen, limitada a localhost y
+        // habilitada explícitamente por la configuración de Codespaces.
+        (permitirProxyLocalHttps === true && url.hostname === 'localhost' && url.origin === `https://${host}`))));
   }
   catch { return false; }
 }
 
 // Inyección de dependencias para probar el contrato sin invocar proveedores reales.
-export function crearServidor({ juegos, umbralInicial, plantilla, dist, embedding, buscar, db, responder, origenPublico }) {
+export function crearServidor({ juegos, umbralInicial, plantilla, dist, embedding, buscar, db, responder, origenPublico, permitirProxyLocalHttps = false }) {
   const sinRespuesta = "No lo encuentro en los documentos.";
   function json(res, estado, datos) {
     res.writeHead(estado, {
@@ -75,7 +79,7 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
       const ruta = new URL(req.url, "http://localhost").pathname;
 
       if (req.method === "POST" && req.headers.origin &&
-          !origenPermitido(req.headers.origin, req.headers.host, origenPublico)) {
+          !origenPermitido(req.headers.origin, req.headers.host, origenPublico, permitirProxyLocalHttps)) {
         json(res, 403, { error: "Origen no permitido" });
         return;
       }

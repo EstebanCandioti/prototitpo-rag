@@ -33,7 +33,7 @@ El modelo se guarda bajo `.codespaces-data/ollama/`, dentro del workspace persis
 
 La preparación rechaza ejecutarse contra `localhost`, otra base o un modelo diferente: solo trabaja con los servicios `postgres/rag_demo` y `ollama` del entorno de prueba. Las credenciales de esa base son exclusivamente de desarrollo y los servicios no publican puertos.
 
-El backend acepta el origen HTTPS exacto calculado a partir de `CODESPACE_NAME`, el puerto y `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`. No admite cualquier dominio `github.dev`, ni confía en `X-Forwarded-Host` enviado por el cliente. El uso local conserva loopback y la validación HTTP original.
+El backend acepta el origen HTTPS exacto calculado a partir de `CODESPACE_NAME`, el puerto y `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN`. En Codespaces también admite el túnel de VS Code que entrega `Origin: https://localhost:PUERTO` y `Host: localhost:PUERTO`: deben coincidir exactamente, incluido el puerto. El puerto local puede cambiar sin modificar el puerto 3000 del backend. Esta excepción HTTPS está deshabilitada fuera de Codespaces; no admite dominios externos ni confía en `X-Forwarded-Host` enviado por el cliente. El uso local conserva loopback y la validación HTTP original.
 
 Codespaces consume cuota de cómputo mientras está activo y almacenamiento mientras existe. Detenelo desde el menú de Codespaces cuando termines. La visibilidad privada exige iniciar sesión en GitHub para acceder a la aplicación. Este entorno sirve para la demostración; no configura un servicio de producción permanente. [Cuotas y facturación](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces).
 
@@ -43,7 +43,8 @@ Al reanudar, abrí la terminal y ejecutá nuevamente `npm run codespaces:iniciar
 
 - **Falta `API_KEY`:** configurá el secreto con acceso al repositorio y detené/reiniciá el Codespace para que se inyecte. La recuperación puede probarse sin la clave, pero la generación y la interpretación de seguimientos la requieren.
 - **Preparación interrumpida:** ejecutá nuevamente `npm run codespaces:preparar`. El índice existente se reutiliza si su firma y cantidad de fragmentos coinciden.
-- **403 Origen no permitido:** abrí el puerto 3000 del Codespace actual. Un dominio de otro Codespace o del puerto 5173 no está autorizado para esta demo.
+- **403 Origen no permitido:** abrí el puerto 3000 del Codespace actual o usá el puerto local reenviado por VS Code. Para un túnel HTTPS de localhost, `Origin` y `Host` deben coincidir; no se autoriza un dominio de otro Codespace. Después de actualizar el backend, reiniciá `npm run codespaces:iniciar`; este cambio no requiere reindexar.
+- **401 al abrir el enlace `app.github.dev`:** pertenece al acceso privado de GitHub. Se puede acceder desde VS Code conectado al Codespace mediante el puerto local reenviado (por ejemplo, `http://127.0.0.1:3001/`). Ese enlace funciona en la PC conectada y mientras VS Code mantenga el túnel. Usá el puerto que indique Ports y mantené su visibilidad privada.
 - **Sin cuota o permisos para Codespaces:** GitHub debe habilitar el entorno en tu cuenta. La CLI requiere el permiso `codespace`; crear y abrir el entorno desde el navegador también es posible.
 
 ## Prueba real del 4 de noviembre de 2026

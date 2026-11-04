@@ -9,7 +9,7 @@ import { leerCorpus } from "./leer-corpus.mjs";
 import { configuracionWeb } from "./configuracion-web.mjs";
 
 const carpeta = dirname(fileURLToPath(import.meta.url));
-const { puerto, host, origenPublico } = configuracionWeb();
+const { puerto, host, origenPublico, permitirProxyLocalHttps } = configuracionWeb();
 const plantilla = await readFile(join(carpeta, "prompt.txt"), "utf8");
 const juegos = leerCorpus(await readFile(join(carpeta, "corpus", "reglas_fournier.txt"), "utf8"))
   .map(r => r.juego)
@@ -17,7 +17,7 @@ const juegos = leerCorpus(await readFile(join(carpeta, "corpus", "reglas_fournie
 const umbralInicial = Number(process.env.UMBRAL ?? 0.6);
 
 const servidor = crearServidor({ juegos, umbralInicial, plantilla,
-  dist: join(carpeta, "frontend", "dist"), embedding, buscar, db, responder, origenPublico });
+  dist: join(carpeta, "frontend", "dist"), embedding, buscar, db, responder, origenPublico, permitirProxyLocalHttps });
 
 servidor.listen(puerto, host, () => {
   console.log(`Entre cartas: ${origenPublico ?? `http://127.0.0.1:${puerto}`}`);

@@ -7,5 +7,5 @@ export function configuracionWeb(env = process.env) {
   if (!nombre || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(nombre) || !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/.test(dominio)) {
     throw new Error('La configuración del dominio de Codespaces no es válida.');
   }
-  return { puerto, host: '0.0.0.0', origenPublico: `https://${nombre}-${puerto}.${dominio}` };
+  return { puerto, host: '0.0.0.0', origenPublico: `https://${nombre}-${puerto}.${dominio}`, permitirProxyLocalHttps: true };
 }

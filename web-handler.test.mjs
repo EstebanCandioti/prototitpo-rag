@@ -110,6 +110,34 @@ test('Codespaces acepta únicamente el origen HTTPS configurado, sin confiar en 
   for (const origen of ['https://otro-3000.app.github.dev', 'https://demo-entre-cartas-5173.app.github.dev', 'http://demo-entre-cartas-3000.app.github.dev', 'https://evil.example', origenPublico + '/ruta']) {
     assert.equal((await post('responder', datos, { Origin: origen, 'X-Forwarded-Host': 'demo-entre-cartas-3000.app.github.dev', 'X-Forwarded-Proto': 'https' })).status, 403);
   }
+  assert.equal((await post('responder', datos, { Origin: 'https://localhost:3002', Host: 'localhost:3002' })).status, 403);
+});
+test('el túnel HTTPS de VS Code admite localhost con el mismo Host y puerto solo al habilitarlo en Codespaces', async t => {
+  const { post, llamadas } = await iniciar(t, {
+    origenPublico: 'https://demo-entre-cartas-3000.app.github.dev', permitirProxyLocalHttps: true,
+  });
+  const datos = { pregunta: '¿Cómo se juega al Truco?', ids: [] };
+  for (const puerto of [3000, 3001, 3002, 49152]) {
+    const headers = { Origin: `https://localhost:${puerto}`, Host: `localhost:${puerto}` };
+    assert.equal((await post('detectar', { pregunta: datos.pregunta }, headers)).status, 200);
+    const respuesta = await post('responder', datos, headers);
+    assert.equal(respuesta.status, 200); assert.equal(respuesta.datos.modeloInvocado, false);
+  }
+  for (const [Origin, Host] of [
+    ['https://localhost:3002', 'localhost:3000'],
+    ['https://localhost:3000', 'localhost:3002'],
+    ['https://localhost:3002', '127.0.0.1:3002'],
+    ['https://evil.example:3002', 'evil.example:3002'],
+    ['https://localhost.evil.example:3002', 'localhost.evil.example:3002'],
+    ['https://localhost:3002/ruta', 'localhost:3002'],
+    ['https://usuario@localhost:3002', 'localhost:3002'],
+    ['https://127.0.0.1:3002', '127.0.0.1:3002'],
+    ['null', 'localhost:3002'],
+  ]) {
+    assert.equal((await post('responder', datos, { Origin, Host,
+      'X-Forwarded-Host': 'localhost:3002', 'X-Forwarded-Proto': 'https' })).status, 403);
+  }
+  assert.equal(llamadas.embedding, 0); assert.equal(llamadas.sql.length, 0); assert.equal(llamadas.prompts.length, 0);
 });
 test('mensajes específicos cuando PostgreSQL u Ollama no están disponibles', async t => {
   const db = await iniciar(t, { buscar: async () => { throw Object.assign(new Error('DB apagada'), { code: 'ECONNREFUSED' }); } });
