@@ -23,7 +23,7 @@ Probá «¿Cuánto vale cantar truco en El Truco?», «¿Qué combinaciones exis
 
 - `npm run codespaces:preparar`: instalación y build, descarga del modelo si falta e indexación de la base de demo si falta o cambió su firma. Se ejecuta automáticamente al crear el entorno.
 - `npm run codespaces:verificar`: usa Ollama y PostgreSQL reales para buscar Truco y Poker; muestra dimensiones, puntajes, IDs seleccionados y tiempo. No consume llamadas a Gemini.
-- `npm run codespaces:iniciar`: comprueba el índice y arranca el servidor de React y la API. Reutiliza el modelo descargado y los vectores cuando no cambió el corpus, el troceado ni el modelo.
+- `npm run codespaces:iniciar`: comprueba el índice, carga el modelo en memoria y arranca el servidor de React y la API. Reutiliza el modelo descargado y los vectores cuando no cambió el corpus, el troceado ni el modelo. Al reanudar el Codespace, esperá a que aparezca la URL: cargar el modelo en frío puede demorar alrededor de un minuto en la máquina de 2 núcleos, sin consumir llamadas a Gemini.
 
 La firma incluye el corpus, el código de indexación/troceado, el modelo y su digest de Ollama. El índice se reemplaza usando el programa original de consola, que prepara todos los embeddings antes de comenzar la transacción de reemplazo.
 
@@ -37,6 +37,8 @@ El backend acepta el origen HTTPS exacto calculado a partir de `CODESPACE_NAME`,
 
 Codespaces consume cuota de cómputo mientras está activo y almacenamiento mientras existe. Detenelo desde el menú de Codespaces cuando termines. La visibilidad privada exige iniciar sesión en GitHub para acceder a la aplicación. Este entorno sirve para la demostración; no configura un servicio de producción permanente. [Cuotas y facturación](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces).
 
+Al reanudar, abrí la terminal y ejecutá nuevamente `npm run codespaces:iniciar`. No necesitás repetir la instalación ni la indexación. El entorno de prueba tiene un cierre automático tras 30 minutos de inactividad.
+
 ## Si aparece un error
 
 - **Falta `API_KEY`:** configurá el secreto con acceso al repositorio y detené/reiniciá el Codespace para que se inyecte. La recuperación puede probarse sin la clave, pero la generación y la interpretación de seguimientos la requieren.
@@ -44,4 +46,10 @@ Codespaces consume cuota de cómputo mientras está activo y almacenamiento mien
 - **403 Origen no permitido:** abrí el puerto 3000 del Codespace actual. Un dominio de otro Codespace o del puerto 5173 no está autorizado para esta demo.
 - **Sin cuota o permisos para Codespaces:** GitHub debe habilitar el entorno en tu cuenta. La CLI requiere el permiso `codespace`; crear y abrir el entorno desde el navegador también es posible.
 
-La configuración se prepara y prueba automáticamente hasta donde permite el entorno disponible. El rendimiento de CPU, la descarga real y el acceso por URL deben comprobarse en el Codespace creado.
+## Prueba real del 4 de noviembre de 2026
+
+Se comprobó el funcionamiento en un Codespace de 2 núcleos y 8 GB: build de React, 27 juegos, PostgreSQL/pgvector con 305 fragmentos, embeddings de Ollama y respuestas reales de Gemini. Se verificaron el origen HTTPS permitido, el rechazo de un origen ajeno, el cambio local de umbral, la abstención sin invocar al LLM cuando no hay selección y el envío/citado de los IDs seleccionados del mismo juego.
+
+La secuencia «¿Cuándo puedo cantar truco en El Truco?» → «¿Y cuánto vale si lo aceptan o lo rechazan?» mantuvo el contexto y respondió los valores de truco, retruco y vale cuatro. Poker recuperó 8 candidatos, seleccionó los 11 fragmentos de la familia «Las jugadas del Poker» y respondió las 10 combinaciones documentadas.
+
+En esa prueba, la carga en frío de `bge-m3` tardó unos 65 segundos; con el modelo cargado, las búsquedas completas tardaron entre 0,16 y 0,25 segundos. El inicio ahora adelanta esa carga antes de anunciar la URL. Gemini tardó aproximadamente entre 2,5 y 30 segundos y devolvió errores temporales `503` por alta demanda; las consultas pudieron completarse al reintentar. Son mediciones de esta prueba, no tiempos garantizados. La aplicación conserva el manejo de errores existente; no cambia automáticamente de modelo ni de plan de facturación.

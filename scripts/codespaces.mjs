@@ -131,6 +131,13 @@ async function main() {
     console.log('Preparación completa. Ejecutá npm run codespaces:iniciar y abrí el puerto 3000 desde Ports.');
   } else if (accion === 'iniciar') {
     await prepararIndice();
+    // Al reanudar el Codespace el índice persiste, pero Ollama debe volver a
+    // cargar el modelo en RAM. Hacerlo aquí evita trasladar esa espera al usuario.
+    console.log('Cargando bge-m3 en memoria antes de abrir la aplicación…');
+    const { embedding } = await import('../api.mjs');
+    const inicio = performance.now();
+    await embedding('¿Qué reglas del juego querés consultar?');
+    console.log(`Modelo listo en ${Math.round(performance.now() - inicio)} ms. No se invocó Gemini.`);
     if (!process.env.API_KEY) console.log('Falta el secreto API_KEY: la búsqueda funciona, pero Gemini necesita su clave para responder.');
     await ejecutar(process.execPath, ['servidor-web.mjs']);
   } else if (accion === 'verificar') await verificar();
