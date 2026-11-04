@@ -1,4 +1,8 @@
 .env
+.env.*
+!.env.example
+!.env.*.example
+.codespaces-data/
 node_modules/
 frontend/dist/
 *.tsbuildinfo

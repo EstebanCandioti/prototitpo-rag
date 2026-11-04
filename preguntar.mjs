@@ -4,6 +4,7 @@ import { buscar } from "./buscar.mjs";
 import { db } from "./db.mjs";
 import { leerCorpus } from "./leer-corpus.mjs";
 import { detectarJuego } from "./detectar-juego.mjs";
+import { construirPrompt } from "./conversacion.mjs";
 
 const PLANTILLA = await readFile("prompt.txt", "utf8");
 const UMBRAL = Number(process.env.UMBRAL ?? 0);
@@ -59,9 +60,7 @@ if (utiles.length === 0) {
 const fragmentos = utiles
   .map(r => `--- ${etiqueta(r)} ---\n${r.texto}`)
   .join("\n\n");
-const prompt = PLANTILLA
-  .replace("{{fragmentos}}", fragmentos)
-  .replace("{{pregunta}}", pregunta);
+const prompt = construirPrompt(PLANTILLA, { fragmentos, pregunta });
 
 // con --sin-modelo solo muestra la búsqueda, sin gastar la llamada al modelo
 if (process.argv.includes("--sin-modelo")) process.exit(0);

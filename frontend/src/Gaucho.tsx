@@ -11,7 +11,7 @@ export interface Animacion {
 export type CatalogoAnimaciones = Partial<Record<Baraja, Partial<Record<Estado, Animacion>>>>
 export const animaciones: CatalogoAnimaciones = {}
 const etiquetas: Record<Estado, string> = {
-  reposo: 'Listo para tu pregunta', deteccion: 'Identificando el juego…', busqueda: 'Buscando en los documentos…',
+  reposo: 'Listo para tu pregunta', deteccion: 'Identificando el juego…', reformulacion: 'Interpretando tu pregunta…', busqueda: 'Buscando en los documentos…',
   generacion: 'Preparando la respuesta…', respuesta: 'Respuesta lista',
   ausencia: 'Sin respuesta en los documentos', error: 'La consulta necesita atención',
 }

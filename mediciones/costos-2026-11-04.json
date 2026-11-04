@@ -1,0 +1,519 @@
+{
+  "fechaTarifas": "2026-11-04",
+  "modelo": "gemini-3.5-flash-lite",
+  "tarifas": {
+    "fecha": "2026-11-04",
+    "moneda": "USD",
+    "entradaPorMillon": 0.3,
+    "salidaPorMillon": 2.5,
+    "entradaCachePorMillon": 0.03,
+    "fuente": "https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite"
+  },
+  "alcance": "Consumo real de generación con candidatos reproducidos del corpus. No mide ranking SQL ni activa facturación. Una muestra por caso.",
+  "excluye": [
+    "Electricidad y hardware de Ollama",
+    "PostgreSQL y alojamiento",
+    "Impuestos y conversión de moneda",
+    "Indexación y embeddings remotos"
+  ],
+  "casos": [
+    {
+      "tipo": "Puntual: definición de full",
+      "pregunta": "¿Qué es un full en Poker?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 2739,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 682,
+            "candidatesTokenCount": 24,
+            "totalTokenCount": 706,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 682
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 682,
+          "tokensSalida": 24,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.00026460000000000003,
+          "costoConCacheUsd": 0.00026460000000000003,
+          "respuesta": "Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí.\nFuente: 170",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        170
+      ],
+      "caracteresContexto": 281,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Qué es un full en Poker?",
+      "respuesta": "Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí.",
+      "costoSinCacheUsd": 0.00026460000000000003,
+      "costoConCacheUsd": 0.00026460000000000003,
+      "porMilConsultasSinCacheUsd": 0.26460000000000006
+    },
+    {
+      "tipo": "Puntual: puntos del truco",
+      "pregunta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5137,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 1279,
+            "candidatesTokenCount": 24,
+            "totalTokenCount": 1303,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 1279
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 1279,
+          "tokensSalida": 24,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0004437,
+          "costoConCacheUsd": 0.0004437,
+          "respuesta": "El truco aumenta su valor a 2 puntos.\n\nFuente: [290, 291]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        290,
+        291
+      ],
+      "caracteresContexto": 2658,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "El truco aumenta su valor a 2 puntos.",
+      "costoSinCacheUsd": 0.0004437,
+      "costoConCacheUsd": 0.0004437,
+      "porMilConsultasSinCacheUsd": 0.4437
+    },
+    {
+      "tipo": "Listado: combinaciones de Poker",
+      "pregunta": "¿Cuáles son las combinaciones de cartas posibles en Poker?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 6810,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 1781,
+            "candidatesTokenCount": 294,
+            "totalTokenCount": 2075,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 1781
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 1781,
+          "tokensSalida": 294,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0012693,
+          "costoConCacheUsd": 0.0012693,
+          "respuesta": "Repoker: Jugando con un comodín, es la mayor jugada que puede hacerse y consiste en tener las 5 cartas del mismo valor, siendo necesariamente una de ellas el comodín.\n\nEscalera de Color: Jugando sin comodín, es la mayor jugada y consiste en tener las cinco cartas del mismo palo y valor correlativo.\n\nPoker: Es tener cuatro cartas del mismo valor.\n\nFull: Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí.\n\nColor: Es tener las cinco cartas del mismo palo sin ser de valor correlativo.\n\nEscalera: Cuando las cinco cartas son de valor correlativo, sin que todas ellas sean del mismo palo.\n\nTrío: Es tener tres cartas del mismo valor y las dos restantes sin que formen pareja.\n\nDobles parejas: Cuando se tienen dos parejas de cartas de diferente valor.\n\nPareja: Dos cartas iguales y tres cualesquiera sin ligar.\n\nCarta Mayor: En el caso de que un juego no contenga ninguna de las combinaciones anteriores, gana el que tenga la carta mayor, pudiendo haber empate, en cuyo caso, se reparten las ganancias.\n\nFuente: [167], [168], [169], [170], [171], [172], [173], [174], [175], [176]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "caracteresContexto": 4319,
+      "alcance": "lista",
+      "consultaEmbedding": "¿Cuáles son las combinaciones de cartas posibles en Poker?",
+      "respuesta": "Repoker: Jugando con un comodín, es la mayor jugada que puede hacerse y consiste en tener las 5 cartas del mismo valor, siendo necesariamente una de ellas el comodín.\n\nEscalera de Color: Jugando sin comodín, es la mayor jugada y consiste en tener las cinco cartas del mismo palo y valor correlativo.\n\nPoker: Es tener cuatro cartas del mismo valor.\n\nFull: Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí.\n\nColor: Es tener las cinco cartas del mismo palo sin ser de valor correlativo.\n\nEscalera: Cuando las cinco cartas son de valor correlativo, sin que todas ellas sean del mismo palo.\n\nTrío: Es tener tres cartas del mismo valor y las dos restantes sin que formen pareja.\n\nDobles parejas: Cuando se tienen dos parejas de cartas de diferente valor.\n\nPareja: Dos cartas iguales y tres cualesquiera sin ligar.\n\nCarta Mayor: En el caso de que un juego no contenga ninguna de las combinaciones anteriores, gana el que tenga la carta mayor, pudiendo haber empate, en cuyo caso, se reparten las ganancias.",
+      "costoSinCacheUsd": 0.0012693,
+      "costoConCacheUsd": 0.0012693,
+      "porMilConsultasSinCacheUsd": 1.2692999999999999
+    },
+    {
+      "tipo": "Comparación: full o color",
+      "pregunta": "¿Qué gana en Poker, full o color?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 6785,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 1779,
+            "candidatesTokenCount": 47,
+            "totalTokenCount": 1826,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 1779
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 1779,
+          "tokensSalida": 47,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0006511999999999999,
+          "costoConCacheUsd": 0.0006511999999999999,
+          "respuesta": "El documento indica que las jugadas van en orden de mayor a valor, y al listar las jugadas, el Full aparece antes que el Color, por lo tanto gana el full.\n\nFuente: --- [166] ---",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "caracteresContexto": 4319,
+      "alcance": "comparacion",
+      "consultaEmbedding": "¿Qué gana en Poker, full o color?",
+      "respuesta": "El documento indica que las jugadas van en orden de mayor a valor, y al listar las jugadas, el Full aparece antes que el Color, por lo tanto gana el full.",
+      "costoSinCacheUsd": 0.0006511999999999999,
+      "costoConCacheUsd": 0.0006511999999999999,
+      "porMilConsultasSinCacheUsd": 0.6511999999999999
+    },
+    {
+      "tipo": "Procedimiento: calcular el envido",
+      "pregunta": "¿Cómo se calcula el envido en El Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5100,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 1259,
+            "candidatesTokenCount": 59,
+            "totalTokenCount": 1318,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 1259
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 1259,
+          "tokensSalida": 59,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0005252000000000001,
+          "costoConCacheUsd": 0.0005252000000000001,
+          "respuesta": "Si se tienen dos cartas del mismo palo, la mano vale la suma de los índices de estas dos cartas más 20 tantos y si las tres cartas son de distinto palo, el valor es el de la carta más alta.\n\nFuente: [288, 289]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        288,
+        289
+      ],
+      "caracteresContexto": 2628,
+      "alcance": "procedimiento",
+      "consultaEmbedding": "¿Cómo se calcula el envido en El Truco?",
+      "respuesta": "Si se tienen dos cartas del mismo palo, la mano vale la suma de los índices de estas dos cartas más 20 tantos y si las tres cartas son de distinto palo, el valor es el de la carta más alta.",
+      "costoSinCacheUsd": 0.0005252000000000001,
+      "costoConCacheUsd": 0.0005252000000000001,
+      "porMilConsultasSinCacheUsd": 0.5252000000000001
+    },
+    {
+      "tipo": "General: reglas de Texas",
+      "pregunta": "¿Cómo se juega al Texas Holdem?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 10524,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 2626,
+            "candidatesTokenCount": 231,
+            "totalTokenCount": 2857,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 2626
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 2626,
+          "tokensSalida": 231,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0013652999999999998,
+          "costoConCacheUsd": 0.0013652999999999998,
+          "respuesta": "Cada jugador intentará conseguir la mejor combinación con las dos cartas de su mano y las cinco expuestas en la mesa.\nSe juega con una baraja de tipo inglés de 52 cartas.\nPueden jugar de dos a siete jugadores.\nEn primer lugar, están las ciegas, que son dos apuestas obligatorias (ciega pequeña y ciega grande) que deben emplazar los dos jugadores que quedan a la izquierda del repartidor.\nTras emplazar las ciegas, el repartidor da a cada jugador dos cartas boca abajo y a lo largo de la mano se colocarán cinco cartas comunitarias boca arriba en el centro de la mesa.\nHay cuatro rondas de apuestas, con turnos donde los jugadores pueden retirarse, ir, apostar, pasar o subir según corresponda en cada fase (Flop, Cuarta Carta y Quinta Carta).\nAl finalizar, los jugadores comparan sus jugadas y se lleva el bote aquel cuya combinación sea superior.\nFuente: [229, 230, 231, 233, 234, 235]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237
+      ],
+      "caracteresContexto": 8060,
+      "alcance": "general",
+      "consultaEmbedding": "¿Cómo se juega al Texas Holdem?",
+      "respuesta": "Cada jugador intentará conseguir la mejor combinación con las dos cartas de su mano y las cinco expuestas en la mesa.\nSe juega con una baraja de tipo inglés de 52 cartas.\nPueden jugar de dos a siete jugadores.\nEn primer lugar, están las ciegas, que son dos apuestas obligatorias (ciega pequeña y ciega grande) que deben emplazar los dos jugadores que quedan a la izquierda del repartidor.\nTras emplazar las ciegas, el repartidor da a cada jugador dos cartas boca abajo y a lo largo de la mano se colocarán cinco cartas comunitarias boca arriba en el centro de la mesa.\nHay cuatro rondas de apuestas, con turnos donde los jugadores pueden retirarse, ir, apostar, pasar o subir según corresponda en cada fase (Flop, Cuarta Carta y Quinta Carta).\nAl finalizar, los jugadores comparan sus jugadas y se lleva el bote aquel cuya combinación sea superior.",
+      "costoSinCacheUsd": 0.0013652999999999998,
+      "costoConCacheUsd": 0.0013652999999999998,
+      "porMilConsultasSinCacheUsd": 1.3653
+    },
+    {
+      "tipo": "General: reglas de Truco",
+      "pregunta": "¿Cómo se juega al Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 21049,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 5245,
+            "candidatesTokenCount": 223,
+            "totalTokenCount": 5468,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 5245
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 5245,
+          "tokensSalida": 223,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.002131,
+          "costoConCacheUsd": 0.002131,
+          "respuesta": "- Sumar los 30 tantos, 15 malos los primeros y 15 buenos los segundos, necesarios para ganar un chico.\n- Se juega con la baraja española de 40 cartas, con una participación de dos a ocho jugadores.\n- El dador reparte tres cartas a cada jugador, de una en una, empezando por la derecha, tras cortar el mazo.\n- El juego consta de dos fases: una primera para apostar sobre la mejor combinación de cartas (flor y envido) y una segunda sobre las bazas jugadas (truco), donde cada jugador juega una carta por baza y gana quien obtenga la carta más alta o la mayoría de las bazas.\n- La partida se anota al final de cada juego parcial o tiro hasta que un equipo consigue dos chicos.\n\nFuente: [276], [277], [278], [279, 280], [282], [283], [290, 291], [292]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        276,
+        277,
+        278,
+        279,
+        280,
+        282,
+        281,
+        283,
+        284,
+        285,
+        286,
+        287,
+        290,
+        291,
+        288,
+        289,
+        292,
+        293
+      ],
+      "caracteresContexto": 18592,
+      "alcance": "general",
+      "consultaEmbedding": "¿Cómo se juega al Truco?",
+      "respuesta": "- Sumar los 30 tantos, 15 malos los primeros y 15 buenos los segundos, necesarios para ganar un chico.\n- Se juega con la baraja española de 40 cartas, con una participación de dos a ocho jugadores.\n- El dador reparte tres cartas a cada jugador, de una en una, empezando por la derecha, tras cortar el mazo.\n- El juego consta de dos fases: una primera para apostar sobre la mejor combinación de cartas (flor y envido) y una segunda sobre las bazas jugadas (truco), donde cada jugador juega una carta por baza y gana quien obtenga la carta más alta o la mayoría de las bazas.\n- La partida se anota al final de cada juego parcial o tiro hasta que un equipo consigue dos chicos.",
+      "costoSinCacheUsd": 0.002131,
+      "costoConCacheUsd": 0.002131,
+      "porMilConsultasSinCacheUsd": 2.1310000000000002
+    },
+    {
+      "tipo": "Abstención del modelo: combinaciones de Texas",
+      "pregunta": "¿Qué combinaciones de cartas existen en Texas Holdem?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 3112,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 790,
+            "candidatesTokenCount": 7,
+            "totalTokenCount": 797,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 790
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 790,
+          "tokensSalida": 7,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0002545,
+          "costoConCacheUsd": 0.0002545,
+          "respuesta": "No lo encuentro en los documentos.",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        229,
+        232
+      ],
+      "caracteresContexto": 626,
+      "alcance": "lista",
+      "consultaEmbedding": "¿Qué combinaciones de cartas existen en Texas Holdem?",
+      "respuesta": "No lo encuentro en los documentos.",
+      "costoSinCacheUsd": 0.0002545,
+      "costoConCacheUsd": 0.0002545,
+      "porMilConsultasSinCacheUsd": 0.2545
+    },
+    {
+      "tipo": "Seguimiento: ¿y cuánto vale?",
+      "pregunta": "¿Y cuánto vale?",
+      "llamadas": [
+        {
+          "tarea": "interpretacion",
+          "caracteresPrompt": 1497,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 356,
+            "candidatesTokenCount": 20,
+            "totalTokenCount": 376,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 356
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 356,
+          "tokensSalida": 20,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.00015680000000000002,
+          "costoConCacheUsd": 0.00015680000000000002,
+          "respuesta": "{\"pregunta\":\"¿Cuántos puntos vale el canto de truco en El Truco?\"}",
+          "fin": "STOP"
+        },
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5108,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 1275,
+            "candidatesTokenCount": 26,
+            "totalTokenCount": 1301,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 1275
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 1275,
+          "tokensSalida": 26,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.0004475,
+          "costoConCacheUsd": 0.0004475,
+          "respuesta": "El canto de truco aumenta su valor a 2 puntos.\n\nFuente: [290, 291]",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [
+        290,
+        291
+      ],
+      "caracteresContexto": 2658,
+      "preguntaResuelta": "¿Cuántos puntos vale el canto de truco en El Truco?",
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale el canto de truco en El Truco?",
+      "respuesta": "El canto de truco aumenta su valor a 2 puntos.",
+      "costoSinCacheUsd": 0.0006043,
+      "costoConCacheUsd": 0.0006043,
+      "porMilConsultasSinCacheUsd": 0.6043
+    },
+    {
+      "tipo": "Sin candidatos aceptados: primera pregunta",
+      "pregunta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "llamadas": [],
+      "ids": [],
+      "caracteresContexto": 0,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "No lo encuentro en los documentos",
+      "costoSinCacheUsd": 0,
+      "costoConCacheUsd": 0,
+      "porMilConsultasSinCacheUsd": 0
+    },
+    {
+      "tipo": "Sin candidatos aceptados: seguimiento",
+      "pregunta": "¿Y cuánto vale?",
+      "llamadas": [
+        {
+          "tarea": "interpretacion",
+          "caracteresPrompt": 1497,
+          "modeloDevuelto": "gemini-3.5-flash-lite",
+          "uso": {
+            "promptTokenCount": 356,
+            "candidatesTokenCount": 20,
+            "totalTokenCount": 376,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 356
+              }
+            ],
+            "serviceTier": "standard"
+          },
+          "tokensEntrada": 356,
+          "tokensSalida": 20,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "costoSinCacheUsd": 0.00015680000000000002,
+          "costoConCacheUsd": 0.00015680000000000002,
+          "respuesta": "{\"pregunta\":\"¿Cuántos puntos vale el canto de truco en El Truco?\"}",
+          "fin": "STOP"
+        }
+      ],
+      "ids": [],
+      "caracteresContexto": 0,
+      "preguntaResuelta": "¿Cuántos puntos vale el canto de truco en El Truco?",
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale el canto de truco en El Truco?",
+      "respuesta": "No lo encuentro en los documentos",
+      "costoSinCacheUsd": 0.00015680000000000002,
+      "costoConCacheUsd": 0.00015680000000000002,
+      "porMilConsultasSinCacheUsd": 0.15680000000000002
+    }
+  ]
+}

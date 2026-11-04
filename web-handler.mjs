@@ -1,19 +1,26 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { resolve, sep, extname } from "node:path";
-import { detectarJuego } from "./detectar-juego.mjs";
 import { metadatoJuego } from "./metadatos-juegos.mjs";
+import { validarContexto, resolverConsulta, construirPrompt } from "./conversacion.mjs";
+import { reformularConsulta, validarPreguntaResuelta } from "./reformular-consulta.mjs";
+import { construirPlanContexto, limitesContexto } from "./seleccionar-contexto.mjs";
+import { formatearContexto, limpiarRespuesta, esAbstencion } from "./contexto-respuesta.mjs";
 
 const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png',
   '.webp': 'image/webp', '.jpg': 'image/jpeg', '.gif': 'image/gif', '.mp4': 'video/mp4', '.webm': 'video/webm' };
-function origenPermitido(origen, host) {
-  try { const url = new URL(origen); return url.protocol === 'http:' && url.origin === `http://${host}`; }
+function origenPermitido(origen, host, origenPublico) {
+  try {
+    const url = new URL(origen);
+    return url.origin === origen && ((url.protocol === 'http:' && url.origin === `http://${host}`) ||
+      (url.protocol === 'https:' && origenPublico !== undefined && url.origin === origenPublico));
+  }
   catch { return false; }
 }
 
 // Inyección de dependencias para probar el contrato sin invocar proveedores reales.
-export function crearServidor({ juegos, umbralInicial, plantilla, dist, embedding, buscar, db, responder }) {
+export function crearServidor({ juegos, umbralInicial, plantilla, dist, embedding, buscar, db, responder, origenPublico }) {
   const sinRespuesta = "No lo encuentro en los documentos.";
   function json(res, estado, datos) {
     res.writeHead(estado, {
@@ -52,13 +59,15 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
     return pregunta;
   }
 
-  function juegoDePregunta(pregunta) {
-    try {
-      return detectarJuego(pregunta, juegos);
-    } catch (error) {
-      error.estado = 422;
-      throw error;
+  function consultaDeDatos(datos) {
+    const pregunta = validarPregunta(datos);
+    const contexto = validarContexto(datos.contexto, juegos);
+    const consulta = { pregunta, ...resolverConsulta(pregunta, contexto, juegos) };
+    if (datos.preguntaResuelta !== undefined) {
+      consulta.preguntaResuelta = validarPreguntaResuelta(datos.preguntaResuelta, consulta.juego, juegos);
+      consulta.consultaBusqueda = consulta.preguntaResuelta;
     }
+    return consulta;
   }
 
   return createServer(async (req, res) => {
@@ -66,7 +75,7 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
       const ruta = new URL(req.url, "http://localhost").pathname;
 
       if (req.method === "POST" && req.headers.origin &&
-          !origenPermitido(req.headers.origin, req.headers.host)) {
+          !origenPermitido(req.headers.origin, req.headers.host, origenPublico)) {
         json(res, 403, { error: "Origen no permitido" });
         return;
       }
@@ -82,32 +91,52 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
 
       // Clasificación por nombre y metadatos del corpus: sin vectores, SQL ni LLM.
       if (req.method === "POST" && ruta === "/api/detectar") {
-        const pregunta = validarPregunta(await cuerpoJson(req));
-        const juego = juegoDePregunta(pregunta);
+        const { juego } = consultaDeDatos(await cuerpoJson(req));
         json(res, 200, { juego, metadatos: metadatoJuego(juego) });
+        return;
+      }
+
+      if (req.method === "POST" && ruta === "/api/reformular") {
+        const consulta = consultaDeDatos(await cuerpoJson(req));
+        json(res, 200, await reformularConsulta(consulta, responder, juegos));
         return;
       }
 
       if (req.method === "POST" && ruta === "/api/recuperar") {
         const datos = await cuerpoJson(req);
-        const pregunta = validarPregunta(datos);
-        const juego = juegoDePregunta(pregunta);
+        const { pregunta, juego, consultaBusqueda, preguntaResuelta } = consultaDeDatos(datos);
         const k = Number(datos.k);
-        if (!Number.isInteger(k) || k < 1 || k > 8) {
-          json(res, 400, { error: "La cantidad de fragmentos debe estar entre 1 y 8" });
+        if (!Number.isInteger(k) || k < 1 || k > limitesContexto.candidatos) {
+          json(res, 400, { error: `La cantidad de candidatos debe estar entre 1 y ${limitesContexto.candidatos}` });
           return;
         }
-        const resultados = await buscar(await embedding(pregunta), juego, k);
-        json(res, 200, { juego, metadatos: metadatoJuego(juego), resultados });
+        const inicio = performance.now();
+        const vector = await embedding(consultaBusqueda);
+        const conVector = performance.now();
+        const resultados = (await buscar(vector, juego, k)).filter(f => f.juego === juego);
+        const conCandidatos = performance.now();
+        let planContexto;
+        if (datos.ampliar === true && resultados.length) {
+          // La ampliación se obtiene de SQL, con el juego y los orígenes de la búsqueda.
+          // No cambia los embeddings ni requiere reindexar.
+          const { rows } = await db.query(
+            `SELECT id, juego, origen, seccion, posicion, texto
+               FROM fragmentos WHERE juego = $1 ORDER BY posicion`, [juego]);
+          const origenes = new Set(resultados.map(f => f.origen));
+          planContexto = construirPlanContexto({ pregunta: preguntaResuelta ?? pregunta,
+            juego, resultados, fragmentos: rows.filter(f => f.juego === juego && origenes.has(f.origen)) });
+        }
+        const fin = performance.now();
+        json(res, 200, { juego, metadatos: metadatoJuego(juego), consultaBusqueda, preguntaResuelta, resultados, planContexto,
+          tiempos: { embedding: Math.round(conVector - inicio), busqueda: Math.round(conCandidatos - conVector), secciones: Math.round(fin - conCandidatos) } });
         return;
       }
 
       if (req.method === "POST" && ruta === "/api/responder") {
         const datos = await cuerpoJson(req);
-        const pregunta = validarPregunta(datos);
-        const juego = juegoDePregunta(pregunta);
+        const { pregunta, juego, contexto, preguntaResuelta } = consultaDeDatos(datos);
         const ids = datos.ids;
-        if (!Array.isArray(ids) || ids.length > 8 || ids.some(id => !Number.isInteger(id) || id < 1)) {
+        if (!Array.isArray(ids) || ids.length > limitesContexto.fragmentos || ids.some(id => !Number.isInteger(id) || id < 1)) {
           json(res, 400, { error: "La selección de fragmentos no es válida" });
           return;
         }
@@ -117,7 +146,7 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
         }
 
         const { rows } = await db.query(
-          `SELECT id, juego, origen, seccion, texto
+          `SELECT id, juego, origen, seccion, posicion, texto
              FROM fragmentos
             WHERE juego = $1 AND id = ANY($2::int[])`,
           [juego, ids],
@@ -128,20 +157,23 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
           return;
         }
 
-        const fragmentos = ids.map(id => {
-          const r = porId.get(id);
-          const etiqueta = `${r.juego} · ${r.seccion} · ${r.origen}`;
-          return `--- ${etiqueta} ---\n${r.texto}`;
-        }).join("\n\n");
-        const prompt = plantilla
-          .replace("{{fragmentos}}", fragmentos)
-          .replace("{{pregunta}}", pregunta);
-        const respuesta = await responder(prompt);
-        const abstencion = respuesta.trim().startsWith("No lo encuentro en los documentos");
+        const seleccion = ids.map(id => porId.get(id));
+        if (seleccion.reduce((n, f) => n + f.texto.length, 0) > limitesContexto.caracteres) {
+          json(res, 400, { error: "El contexto seleccionado supera el límite de texto. Ajustá la selección en Modo de pruebas." });
+          return;
+        }
+        const fragmentos = formatearContexto(seleccion);
+        const prompt = construirPrompt(plantilla, { pregunta, fragmentos, contexto, preguntaResuelta });
+        const inicio = performance.now();
+        const respuestaOriginal = await responder(prompt);
+        const respuesta = limpiarRespuesta(respuestaOriginal);
+        if (!respuesta) throw new Error('El proveedor devolvió una respuesta vacía');
+        const abstencion = esAbstencion(respuesta);
         json(res, 200, {
           // Las citas visibles son las fuentes estructuradas verificadas; se retira
           // el pie libre del LLM para que no pueda introducir una URL o juego ajeno.
-          respuesta: abstencion ? sinRespuesta : respuesta.replace(/(?:^|\n)\s*Fuentes?:[\s\S]*$/i, "").trim(),
+          respuesta: abstencion ? sinRespuesta : respuesta,
+          respuestaOriginal, duracionMs: Math.round(performance.now() - inicio), caracteresContexto: fragmentos.length,
           modeloInvocado: true,
           sinRespuesta: abstencion,
           // Fuentes de contexto verificadas por SQL, nunca inferidas del texto del LLM.

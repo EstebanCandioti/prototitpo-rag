@@ -17,7 +17,7 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
   const destinoMazo = baraja === 'general' ? mazo.current : baraja
   // Escribir tiene prioridad sobre una respuesta anterior, antes del primer carácter.
   const accion = estado === 'deteccion' ? 'identificando'
-    : estado === 'busqueda' || estado === 'generacion' ? 'pensando'
+    : estado === 'reformulacion' || estado === 'busqueda' || estado === 'generacion' ? 'pensando'
     : atento ? 'atencion'
     : estado === 'respuesta' ? 'respuesta'
     : estado === 'ausencia' || estado === 'error' ? 'aviso' : 'reposo'
@@ -36,7 +36,7 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
     return () => media.removeEventListener('change', cambiar)
   }, [])
   useEffect(() => {
-    if (estado === 'busqueda' || estado === 'generacion') respuestaReproducida.current = false
+    if (estado === 'reformulacion' || estado === 'busqueda' || estado === 'generacion') respuestaReproducida.current = false
   }, [estado])
   useEffect(() => {
     if (!recursos || !canvas.current) return

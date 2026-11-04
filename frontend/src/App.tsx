@@ -3,36 +3,65 @@ import type { FormEvent } from 'react'
 import { api } from './api'
 import { Gaucho } from './Gaucho'
 import { JuegosSidebar } from './JuegosSidebar'
-import type { Estado, Recuperacion, Respuesta, Fuente, JuegoDetectado } from './types'
+import { DepuracionConsulta } from './DepuracionConsulta'
+import { seleccionarContexto } from '../../seleccionar-contexto.mjs'
+import type { Estado, Recuperacion, Respuesta, Fuente, JuegoDetectado, ContextoConversacion, TurnoConversacion, Reformulacion } from './types'
 
 const ausencia = 'No lo encuentro en los documentos'
 export function Fuentes({ fuentes }: { fuentes: Fuente[] }) {
+  const grupos = new Map<string, Fuente[]>()
+  for (const fuente of fuentes) {
+    const clave = JSON.stringify([fuente.juego, fuente.origen, fuente.seccion.split(' > ')[0]])
+    grupos.set(clave, [...(grupos.get(clave) ?? []), fuente])
+  }
   return <details className="fuentes"><summary>Fuentes consultadas <span>{fuentes.length}</span></summary>
     <p className="helper">Fragmentos utilizados como contexto para esta respuesta.</p>
-    {fuentes.map(f => <article key={f.id}>
-      <h3>{f.juego} · {f.seccion}</h3>
+    {[...grupos].map(([clave, partes]) => { const f = partes[0]; return <article key={clave}>
+      <h3>{f.juego} · {f.seccion.split(' > ')[0]}</h3>
       {/^(https?:)\/\//i.test(f.origen)
         ? <a href={f.origen} target="_blank" rel="noreferrer">{f.origen} ↗</a>
         : <span>{f.origen}</span>}
-      <p className="fragmento">{f.texto}</p>
-    </article>)}
+      {partes.map(parte => <details className="source-part" key={parte.id}><summary>#{parte.id} · {parte.seccion}</summary><p className="fragmento">{parte.texto}</p></details>)}
+    </article> })}
+  </details>
+}
+function Historial({ turnos }: { turnos: TurnoConversacion[] }) {
+  const [abierto, setAbierto] = useState(false)
+  if (!turnos.length) return null
+  return <details className="history" onToggle={event => setAbierto(event.currentTarget.open)}>
+    <summary>Historial de esta conversación <span>{turnos.length}</span></summary>
+    {abierto && <ol>{turnos.map((turno, indice) => <li key={indice}>
+      <p className="history-question"><strong>Vos:</strong> {turno.pregunta}</p>
+      <p className="answer"><strong>Gaucho · {turno.juego}:</strong> {turno.respuesta.respuesta}</p>
+      {turno.respuesta.fuentes.length > 0 && <Fuentes fuentes={turno.respuesta.fuentes} />}
+      {turno.informe && <details className="history-debug"><summary>Diagnóstico de esta consulta</summary>
+        <DepuracionConsulta pregunta={turno.pregunta} recuperacion={turno.informe.recuperacion} seleccion={turno.informe.seleccion}
+          contexto={turno.informe.contexto} respuesta={turno.respuesta} estado={turno.respuesta.sinRespuesta ? 'ausencia' : 'respuesta'} umbral={turno.informe.umbral} modo={turno.informe.modo} />
+      </details>}
+    </li>)}</ol>}
+    <p className="helper">Se muestran hasta 10 intercambios. El modelo recibe solo el último intercambio anterior.</p>
   </details>
 }
 export default function App() {
   const enCurso = useRef(false)
   const [escribiendo, setEscribiendo] = useState(false)
   const [pregunta, setPregunta] = useState('')
-  const [k, setK] = useState(2)
+  const [k, setK] = useState(8)
   const [umbral, setUmbral] = useState<number | null>(null)
+  const [modoContexto, setModoContexto] = useState<'secciones' | 'fragmentos'>('secciones')
   const [estado, setEstado] = useState<Estado>('reposo')
   const [juegoDetectado, setJuegoDetectado] = useState<JuegoDetectado | null>(null)
+  const [juegoActivo, setJuegoActivo] = useState<JuegoDetectado | null>(null)
+  const [historial, setHistorial] = useState<TurnoConversacion[]>([])
+  const [contextoRecuperacion, setContextoRecuperacion] = useState<ContextoConversacion | undefined>()
+  const [reformulacion, setReformulacion] = useState<Reformulacion | null>(null)
   const [recuperacion, setRecuperacion] = useState<Recuperacion | null>(null)
   const [respuesta, setRespuesta] = useState<Respuesta | null>(null)
   const [error, setError] = useState('')
   const [configError, setConfigError] = useState('')
   const [juegos, setJuegos] = useState<string[]>([])
-  const ocupado = estado === 'deteccion' || estado === 'busqueda' || estado === 'generacion'
-  const seleccion = recuperacion?.resultados.filter(f => f.similitud >= (umbral ?? 1)) ?? []
+  const ocupado = estado === 'deteccion' || estado === 'reformulacion' || estado === 'busqueda' || estado === 'generacion'
+  const seleccion = seleccionarContexto(recuperacion, umbral ?? 1, modoContexto)
   async function cargarConfiguracion() {
     setConfigError('')
     try {
@@ -41,32 +70,77 @@ export default function App() {
     } catch (e) { setConfigError((e as Error).message) }
   }
   useEffect(() => { void cargarConfiguracion() }, [])
-  function invalidar() {
-    setJuegoDetectado(null); setRecuperacion(null); setRespuesta(null); setError(''); setEstado('reposo')
+  function invalidar(conservarReformulacion = false) {
+    setJuegoDetectado(null); setRecuperacion(null); setContextoRecuperacion(undefined); setRespuesta(null); setError(''); setEstado('reposo')
+    if (!conservarReformulacion) setReformulacion(null)
+  }
+  function nuevaConversacion() {
+    if (enCurso.current) return
+    invalidar(); setPregunta(''); setJuegoActivo(null); setHistorial([]); setEscribiendo(false)
   }
   async function consultar(soloRecuperar = false) {
     if (enCurso.current || umbral === null || !pregunta.trim()) return
     enCurso.current = true
     setEscribiendo(false); setError(''); setRespuesta(null)
     try {
+      const preguntaActual = pregunta.trim()
+      let contexto = contextoRecuperacion
       let datosRecuperados = recuperacion
       if (soloRecuperar || !datosRecuperados) {
+        const ultimo = historial.at(-1)
+        contexto = ultimo && ultimo.juego === juegoActivo?.juego
+          ? ultimo.pregunta === preguntaActual ? ultimo.contexto : {
+            juego: ultimo.juego, pregunta: ultimo.pregunta,
+            respuesta: ultimo.respuesta.respuesta.length > 4000
+              ? ultimo.respuesta.respuesta.slice(0, 3960) + '\n[Historial recortado por extensión.]'
+              : ultimo.respuesta.respuesta,
+          }
+          : juegoActivo ? { juego: juegoActivo.juego } : undefined
+        const conversacion = contexto ? { contexto } : {}
         setEstado('deteccion'); setJuegoDetectado(null); setRecuperacion(null)
-        const detectado = await api<JuegoDetectado>('detectar', { pregunta: pregunta.trim() })
-        setJuegoDetectado(detectado)
+        const detectado = await api<JuegoDetectado>('detectar', { pregunta: preguntaActual, ...conversacion })
+        if (detectado.juego !== juegoActivo?.juego) setHistorial([])
+        if (contexto?.juego !== detectado.juego) contexto = undefined
+        setContextoRecuperacion(contexto)
+        setJuegoDetectado(detectado); setJuegoActivo(detectado)
+        let interpretacion = reformulacion?.juego === detectado.juego ? reformulacion : null
+        if (contexto?.pregunta) {
+          if (!interpretacion) {
+            setEstado('reformulacion')
+            interpretacion = await api<Reformulacion>('reformular', { pregunta: preguntaActual, contexto })
+            setReformulacion(interpretacion)
+          }
+        } else {
+          interpretacion = null; setReformulacion(null)
+        }
         // El sprite cambia primero de mazo; la recuperación puede avanzar en paralelo.
         setEstado('busqueda')
-        datosRecuperados = await api<Recuperacion>('recuperar', { pregunta: pregunta.trim(), k })
+        datosRecuperados = await api<Recuperacion>('recuperar', { pregunta: preguntaActual, k, ampliar: true,
+          ...(contexto ? { contexto } : {}), ...(interpretacion ? { preguntaResuelta: interpretacion.preguntaResuelta } : {}) })
         setRecuperacion(datosRecuperados)
       }
+      const seleccionActual = seleccionarContexto(datosRecuperados, umbral, modoContexto)
+      const guardarTurno = (datos: Respuesta) => {
+        const turno: TurnoConversacion = { juego: datosRecuperados.juego, pregunta: preguntaActual, respuesta: datos, contexto,
+          informe: { recuperacion: datosRecuperados, seleccion: seleccionActual, umbral, modo: modoContexto, contexto } }
+        setHistorial(previos => {
+          const anteriores = previos.filter(t => t.juego === turno.juego)
+          if (anteriores.at(-1)?.pregunta === preguntaActual) return [...anteriores.slice(0, -1), turno]
+          return [...anteriores, turno].slice(-10)
+        })
+      }
       // Filtrar la recuperación actual: no repetir embedding para otro corte o reintento.
-      const aceptados = datosRecuperados.resultados.filter(f => f.similitud >= umbral)
-      if (!aceptados.length) { setEstado('ausencia'); return }
+      if (!seleccionActual.ids.length) {
+        if (!soloRecuperar) guardarTurno({ respuesta: ausencia, modeloInvocado: false, sinRespuesta: true, fuentes: [] })
+        setEstado('ausencia'); return
+      }
       if (soloRecuperar) { setEstado('reposo'); return }
       setEstado('generacion')
-      const datos = await api<Respuesta>('responder', { pregunta: pregunta.trim(), ids: aceptados.map(f => f.id) })
+      const datos = await api<Respuesta>('responder', { pregunta: preguntaActual, ids: seleccionActual.ids,
+        ...(contexto ? { contexto } : {}), ...(datosRecuperados.preguntaResuelta ? { preguntaResuelta: datosRecuperados.preguntaResuelta } : {}) })
       // Solo fuentes verificadas del juego de esta consulta.
-      setRespuesta({ ...datos, fuentes: datos.fuentes.filter(f => f.juego === datosRecuperados.juego) })
+      const verificada = { ...datos, fuentes: datos.fuentes.filter(f => f.juego === datosRecuperados.juego) }
+      setRespuesta(verificada); guardarTurno(verificada)
       setEstado(datos.sinRespuesta ? 'ausencia' : 'respuesta')
     } catch (e) { setError((e as Error).message); setEstado('error') }
     finally { enCurso.current = false }
@@ -77,18 +151,24 @@ export default function App() {
   }
   function cambiarUmbral(valor: number) {
     setUmbral(valor); setRespuesta(null); setError('')
-    setEstado(recuperacion && !recuperacion.resultados.some(f => f.similitud >= valor) ? 'ausencia' : 'reposo')
+    setEstado(recuperacion && !seleccionarContexto(recuperacion, valor, modoContexto).ids.length ? 'ausencia' : 'reposo')
+  }
+  function cambiarModo(valor: 'secciones' | 'fragmentos') {
+    setModoContexto(valor); setRespuesta(null); setError('')
+    setEstado(recuperacion && !seleccionarContexto(recuperacion, umbral ?? 1, valor).ids.length ? 'ausencia' : 'reposo')
   }
   const mensaje = estado === 'deteccion' ? 'Identificando el juego…'
+    : estado === 'reformulacion' ? 'Estoy interpretando tu pregunta con lo que veníamos conversando.'
     : estado === 'busqueda' ? 'Voy a buscar las reglas en los documentos.'
     : estado === 'generacion' ? 'Estoy preparando tu respuesta…'
     : estado === 'error' ? error
     : estado === 'ausencia' ? ausencia
     : respuesta ? respuesta.respuesta
     : recuperacion ? 'Presioná Enter para consultar las reglas con la selección actual.'
+    : juegoActivo ? `¿Qué más querés saber sobre ${juegoActivo.juego}?`
     : '¿Una duda con las reglas? Mencioná el juego en tu pregunta y lo consultamos en los documentos.'
   return <div className="app-shell">
-    <JuegosSidebar juegos={juegos} juegoActual={juegoDetectado?.juego ?? recuperacion?.juego}
+    <JuegosSidebar juegos={juegos} juegoActual={juegoDetectado?.juego ?? juegoActivo?.juego}
       cargando={umbral === null && !configError} error={Boolean(configError)} />
     <div className="page">
     <header className="header">
@@ -96,17 +176,21 @@ export default function App() {
       <span className="header-note">REGLAS SOBRE LA MESA</span>
     </header>
     <main>
-      <div className="intro"><p className="eyebrow">UN JUEGO, UNA PREGUNTA</p><h1>Que las dudas no corten<br />la partida.</h1><p>Consultá las reglas, con los documentos a mano.</p></div>
+      <div className="intro"><p className="eyebrow">UN JUEGO, UNA CONVERSACIÓN</p><h1>Que las dudas no corten<br />la partida.</h1><p>Consultá las reglas, con los documentos a mano.</p></div>
       {configError && <div className="config-error" role="alert">{configError} <button onClick={() => void cargarConfiguracion()}>Reintentar conexión</button></div>}
       <section className="conversation" aria-label="Consulta de reglas" aria-busy={ocupado}>
         <div className={`bubble ${estado === 'error' ? 'bubble-error' : ''}`}>
-          <p className="bubble-label">{juegoDetectado?.juego ?? recuperacion?.juego ?? 'EL GAUCHO DICE'}</p>
+          <p className="bubble-label">{juegoDetectado?.juego ?? juegoActivo?.juego ?? 'EL GAUCHO DICE'}</p>
           <div role={estado === 'error' ? 'alert' : 'status'} aria-live="polite" className="answer">{mensaje}</div>
           {respuesta && respuesta.fuentes.length > 0 && <Fuentes fuentes={respuesta.fuentes} />}
         </div>
-        <Gaucho atento={escribiendo} estado={estado} baraja={juegoDetectado?.metadatos.baraja ?? recuperacion?.metadatos.baraja ?? 'general'} />
+        <Gaucho atento={escribiendo} estado={estado} baraja={juegoDetectado?.metadatos.baraja ?? juegoActivo?.metadatos.baraja ?? 'general'} />
         <span className="table-line" aria-hidden="true" />
       </section>
+      <div className="conversation-controls">
+        <p className="helper">{juegoActivo ? `Conversando sobre ${juegoActivo.juego}. Podés seguir preguntando sin repetir su nombre.` : 'Para empezar, mencioná el juego en tu pregunta.'}</p>
+        <button type="button" disabled={ocupado || (!juegoActivo && !historial.length)} onClick={nuevaConversacion}>Nueva conversación</button>
+      </div>
       <form className="question-form" onSubmit={enviar}>
         <label htmlFor="pregunta">¿Qué jugamos hoy?</label>
         <div className="input-row"><textarea id="pregunta" onFocus={() => setEscribiendo(true)} onBlur={() => setEscribiendo(false)} rows={2} maxLength={1000} required disabled={ocupado} enterKeyHint="send" aria-describedby="ayuda-pregunta"
@@ -117,28 +201,30 @@ export default function App() {
             }
           }}
           value={pregunta} onChange={e => { setPregunta(e.target.value); invalidar() }}
-          placeholder="En el truco, ¿cómo funciona el envido?" />
+          placeholder={juegoActivo ? '¿Qué otra regla querés consultar?' : 'En el truco, ¿cómo funciona el envido?'} />
         </div>
-        <p id="ayuda-pregunta" className="helper">Enter para preguntar · Shift+Enter para agregar una línea. Incluí el nombre de un solo juego.</p>
+        <p id="ayuda-pregunta" className="helper">Enter para preguntar · Shift+Enter para agregar una línea. {juegoActivo ? 'Para cambiar de juego, mencioná otro por su nombre.' : 'Incluí el nombre de un solo juego.'}</p>
       </form>
+      <Historial key={juegoActivo?.juego ?? 'nueva'} turnos={historial} />
       <details className="testing"><summary>Modo de pruebas <span>AJUSTES Y RECUPERACIÓN</span></summary>
         <div className="test-controls">
           <div><label htmlFor="umbral">Umbral de similitud</label><output htmlFor="umbral">{umbral === null ? 'Cargando…' : umbral.toFixed(2)}</output>
             <input id="umbral" type="range" min="0" max="1" step="0.01" value={umbral ?? 0} disabled={ocupado || umbral === null} onChange={e => cambiarUmbral(Number(e.target.value))} /></div>
-          <label htmlFor="cantidad">Cantidad de fragmentos<select id="cantidad" value={k} disabled={ocupado} onChange={e => { setK(Number(e.target.value)); invalidar() }}>{[1, 2, 3, 4, 5, 6, 7, 8].map(n => <option key={n} value={n}>{n} fragmento{n > 1 ? 's' : ''}</option>)}</select></label>
+          <label htmlFor="cantidad">Cantidad de fragmentos candidatos<select id="cantidad" value={k} disabled={ocupado} onChange={e => { setK(Number(e.target.value)); invalidar(true) }}>{[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map(n => <option key={n} value={n}>{n} candidato{n > 1 ? 's' : ''}</option>)}</select></label>
+          <label htmlFor="modo-contexto">Contexto para responder<select id="modo-contexto" value={modoContexto} disabled={ocupado} onChange={e => cambiarModo(e.target.value as 'secciones' | 'fragmentos')}>
+            <option value="secciones">Completar secciones</option><option value="fragmentos">Solo fragmentos candidatos</option>
+          </select></label>
         </div>
-        <p className="helper">El umbral filtra esta recuperación sin repetir el embedding. Cambiar la pregunta o la cantidad requiere buscar de nuevo. El corte incluye puntajes iguales al umbral.</p>
-        <p className="helper">Para evaluar por etapas, recuperá sin generar y ajustá el corte antes de llamar al modelo.</p>
+        <p className="helper">Los candidatos localizan temas; el contexto puede incluir más fragmentos para completar esas secciones. El umbral y el modo actualizan la selección localmente. Cambiar la pregunta o la cantidad de candidatos requiere buscar de nuevo.</p>
+        <p className="helper">Para evaluar por etapas, recuperá sin generar y ajustá el corte antes de pedir una respuesta. En seguimientos, recuperar incluye una llamada al modelo para interpretar la pregunta.</p>
         <button disabled={ocupado || umbral === null || !pregunta.trim()} onClick={() => void consultar(true)}>Recuperar sin generar</button>
         {recuperacion ? <>
-          <p className="test-summary">{recuperacion.juego} · {seleccion.length} de {recuperacion.resultados.length} aceptados</p>
+          <p className="test-summary">{recuperacion.juego} · {seleccion.aceptados.length} de {recuperacion.resultados.length} candidatos aceptados · {seleccion.ids.length} fragmentos de contexto</p>
           <p className="helper">Baraja para el gaucho: {recuperacion.metadatos.baraja}. {recuperacion.metadatos.nota}</p>
-          {recuperacion.resultados.map(f => <article className="test-fragment" key={f.id}>
-            <div className="fragment-heading"><strong>#{f.id} · {f.seccion}</strong><span className={f.similitud >= (umbral ?? 1) ? 'accepted' : 'discarded'}>{f.similitud.toFixed(3)} · {f.similitud >= (umbral ?? 1) ? 'Aceptado' : 'Descartado'}</span></div>
-            <p>{f.juego} · {f.origen}</p><p className="fragmento">{f.texto}</p>
-          </article>)}
-          <button disabled={ocupado || seleccion.length === 0} onClick={() => void consultar()}>Generar respuesta con {seleccion.length} fragmentos</button>
-        </> : <p className="helper">Todavía no hay fragmentos recuperados.</p>}
+          <button disabled={ocupado || seleccion.ids.length === 0} onClick={() => void consultar()}>Generar respuesta con {seleccion.ids.length} fragmentos</button>
+        </> : null}
+        <DepuracionConsulta pregunta={pregunta.trim()} recuperacion={recuperacion} seleccion={seleccion} contexto={contextoRecuperacion}
+          respuesta={respuesta} estado={estado} error={error} umbral={umbral} modo={modoContexto} />
         <p className="helper">La similitud no garantiza que un texto contenga la respuesta.</p>
       </details>
     </main>

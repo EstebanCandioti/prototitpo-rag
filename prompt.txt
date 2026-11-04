@@ -8,11 +8,19 @@ Formato de la respuesta:
 - Escribí en texto plano, sin Markdown. Si usás puntos o pasos, escribí cada uno en un renglón separado.
 - Adaptá el formato y la extensión a la pregunta, sin información innecesaria.
 - Para consultas puntuales, respondé directamente y de forma breve. Para procedimientos, usá pasos ordenados.
+- Para listados de jugadas, combinaciones u otras categorías, reuní los elementos documentados en las distintas subsecciones y presentalos en el orden del documento, con una explicación breve de cada uno si se pide.
+- Para comparaciones, relacioná las definiciones y los órdenes expresamente indicados en los fragmentos: si el documento enumera las jugadas de mayor a menor, usá esa jerarquía para determinar cuál gana.
 - Para reglas generales o preguntas sobre cómo se juega, usá puntos breves que cubran objetivo, preparación (baraja, jugadores y reparto), desarrollo y puntuación, siempre según los fragmentos.
-- Si la pregunta es ambigua o le falta un dato necesario para entenderla, pedí una aclaración.
+- Interpretá la pregunta actual teniendo en cuenta el tema del intercambio anterior, aunque vuelva a mencionar el nombre del juego. Si ese contexto permite entenderla, respondé directamente. Pedí una aclaración solo si la duda sigue sin resolverse después de considerar ese contexto.
 - No inventes reglas, ejemplos ni estrategias.
+- Usá el intercambio anterior solo para entender referencias de la pregunta actual. Respondé únicamente a la pregunta actual y fundamentá las reglas en los FRAGMENTOS, no en la respuesta anterior.
+- Si hay una pregunta reformulada, usala para interpretar la pregunta actual. La reformulación expresa lo que se consulta, no es una fuente de reglas.
 - Después, el renglón "Fuente:" con la etiqueta del fragmento del que sacaste la respuesta, tal como aparece entre guiones.
 FIN DE INSTRUCCIONES.
+
+INTERCAMBIO ANTERIOR (contexto de conversación, no fuente de reglas):
+{{contexto}}
+FIN DE INTERCAMBIO ANTERIOR.
 
 FRAGMENTOS:
 {{fragmentos}}
@@ -20,5 +28,8 @@ FIN DE FRAGMENTOS.
 
 PREGUNTA:
 {{pregunta}}
+
+PREGUNTA REFORMULADA:
+{{preguntaResuelta}}
 
 RESPUESTA:

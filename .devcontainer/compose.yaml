@@ -1,0 +1,41 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm
+    command: sleep infinity
+    volumes:
+      - ../..:/workspaces:cached
+    environment:
+      # Credenciales exclusivas de esta base de prueba, sin puertos publicados.
+      DATABASE_URL: postgresql://rag:rag_demo_local@postgres:5432/rag_demo
+      URL_EMBEDDINGS: http://ollama:11434/v1
+      MODELO_EMBEDDINGS: bge-m3
+      DIMENSIONES: "1024"
+      PROVEEDOR_CHAT: gemini
+      MODELO_CHAT: gemini-3.5-flash-lite
+      UMBRAL: "0.55"
+      PUERTO_WEB: "3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+  postgres:
+    image: pgvector/pgvector:pg17-bookworm
+    environment:
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: rag_demo_local
+      POSTGRES_DB: rag_demo
+    volumes:
+      - ../.codespaces-data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag_demo"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  ollama:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_KEEP_ALIVE: "-1"
+      OLLAMA_NUM_PARALLEL: "1"
+    volumes:
+      - ../.codespaces-data/ollama:/root/.ollama

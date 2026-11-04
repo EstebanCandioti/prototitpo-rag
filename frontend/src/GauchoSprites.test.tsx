@@ -22,8 +22,8 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers() })
 async function listo() { await act(async () => { await Promise.resolve() }) }
 function ultimoCuadro() { return drawImage.mock.calls.at(-1)![1] / 640 }
-it('pensamiento respeta los cinco cuadros y tiempos originales mientras espera', async () => {
-  render(<GauchoSprites estado="generacion" baraja="espanola" atento={false} onError={vi.fn()} />)
+it.each(['generacion', 'reformulacion'] as const)('pensamiento respeta cuadros y tiempos durante %s', async estado => {
+  render(<GauchoSprites estado={estado} baraja="espanola" atento={false} onError={vi.fn()} />)
   await listo(); expect(ultimoCuadro()).toBe(0)
   await act(() => vi.advanceTimersByTimeAsync(800)); expect(ultimoCuadro()).toBe(1)
   await act(() => vi.advanceTimersByTimeAsync(220)); expect(ultimoCuadro()).toBe(2)

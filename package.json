@@ -4,11 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node probar-deteccion.mjs && node --test web-handler.test.mjs && npm --prefix frontend test",
-    "web": "node --env-file=.env servidor-web.mjs",
+    "test": "node probar-deteccion.mjs && node --test web-handler.test.mjs contexto.test.mjs codespaces.test.mjs && npm --prefix frontend test",
+    "web": "node --env-file-if-exists=.env servidor-web.mjs",
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
-    "start": "node --env-file=.env servidor-web.mjs"
+    "evaluar": "node evaluar-contexto.mjs",
+    "evaluar:llm": "node --env-file=.env evaluar-contexto.mjs --llm",
+    "start": "node --env-file-if-exists=.env servidor-web.mjs",
+    "codespaces:preparar": "node scripts/codespaces.mjs preparar",
+    "codespaces:iniciar": "node scripts/codespaces.mjs iniciar",
+    "codespaces:verificar": "node scripts/codespaces.mjs verificar"
   },
   "keywords": [],
   "author": "",

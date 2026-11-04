@@ -1,0 +1,19 @@
+{
+  "name": "Entre cartas · RAG de demostración",
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "node",
+  "hostRequirements": { "cpus": 2, "memory": "8gb", "storage": "32gb" },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Entre cartas", "onAutoForward": "notify", "visibility": "private", "protocol": "http" },
+    "5432": { "onAutoForward": "ignore" },
+    "11434": { "onAutoForward": "ignore" }
+  },
+  "postCreateCommand": "node scripts/codespaces.mjs preparar",
+  "secrets": {
+    "API_KEY": { "description": "Clave de Gemini para interpretar y responder. Solo se utiliza en el backend; nunca se guarda en el repositorio." }
+  },
+  "shutdownAction": "stopCompose"
+}
