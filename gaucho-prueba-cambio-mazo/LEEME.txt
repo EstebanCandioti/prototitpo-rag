@@ -1,0 +1,11 @@
+GAUCHO — CAMBIO DE MAZO
+
+Seis frames: abanico rojo abierto, medio cerrado, paquete oculto rojo, mismo paquete oculto azul, apertura azul, abanico azul abierto. La secuencia inversa recupera el rojo. El dorso cambia con las manos juntas; las poses cerradas son identicas salvo el color/motivo del mazo de la mesa.
+
+Abrir prueba.html para elegir el mazo, reproducir ambos sentidos o examinar cada pose. PNG y WebP transparentes; GIF con fondo crema para revision. Los frames miden 640 x 724 y la hoja de sprites 3840 x 724. animacion.json documenta secuencias y el instante de cambio.
+
+Los dorsos son propuestas: rojo con rombo crema para juegos de baraja española, azul con medallon crema para juegos de baraja inglesa. El dorso no es por si mismo una identificacion universal de la familia de cartas.
+
+La parte superior conserva dibujos completos para evitar recortes que atraviesen el poncho. La mesa y parte inferior permanecen fijas; la tapa del mazo se sustituye con el motivo generado azul conservando los bordes y la pila originales. Se verifico que las dos poses con manos cerradas solo difieren dentro de la tapa del mazo, la escala comun y la ausencia de recortes en bordes. Pueden quedar variaciones menores de tinta y pliegues en las otras poses.
+
+Esta es una prueba visual para aprobar. En la app se ejecutaria una sola vez al cambiar de tipo de baraja; no en bucle permanente.

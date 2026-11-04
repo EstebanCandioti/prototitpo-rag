@@ -1,0 +1,11 @@
+PENSANDO V2 — TRANSFERENCIA DE DOS CARTAS
+
+Esta prueba reemplaza el gesto anterior de apretar el abanico. Ahora se retiran dos cartas, se mantienen separadas y se reinsertan en el otro extremo. Cinco frames, cuatro poses distintas; el ultimo reutiliza exactamente el primero.
+
+Se descarto el montaje de un recorte local sobre hombros/poncho. La parte superior de cada pose se mantiene como un dibujo completo; la mesa y la parte inferior se copian del primer frame para estabilizarlas. No se afirma igualdad pixel por pixel de cabeza, poncho y manos entre las poses ni con la prueba anterior de atencion. Quedan pequeñas variaciones de tinta o pliegues propias de la generacion.
+
+Abrir prueba.html para reproducir una vez o en bucle y examinar cada pose. PNG y WebP con transparencia; GIF con fondo crema para revision. Los frames miden 640 x 724 y la hoja de sprites 3200 x 724. Tiempos: 800, 220, 500, 240, 800 ms.
+
+Revisar el movimiento al tamaño de la app antes de aprobarlo. Esta version tiene una nueva pose concentrada de referencia dentro de la misma tira; la conexion exacta con la animacion de atencion aun requiere revision conjunta.
+
+Correccion puntual posterior: reparado el borde doble de la carta izquierda del grupo de tres en frames 1 y 2 (indices desde cero). Los frames 0, 3 y 4 no cambiaron.

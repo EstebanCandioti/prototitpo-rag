@@ -1,0 +1,11 @@
+GAUCHO RESPONDIENDO — PRUEBA
+
+Cuatro frames y tres poses distintas: atento, mirada entrecerrada, pequeno asentimiento, vuelve a la mirada seria y la mantiene. La primera pose coincide exactamente con la pose atenta aprobada. Las cinco cartas, manos, poncho, mesa, piernas y silla se mantienen intactos. Solo se sustituyen los ojos por los extraidos de la nueva referencia generada y se trasladan los pixeles originales del sombrero 4 px / ojos 3 px para el asentimiento.
+
+Abrir prueba.html. Responder reproduce la entrada una sola vez y mantiene la pose final. Volver atento recupera la pose normal. El bucle de prueba es solo para revision; no conviene asentir repetidamente mientras se muestra toda la respuesta.
+
+La burbuja y el texto no forman parte del dibujo: se implementaran desde el frontend. No hay boca, nariz ni cejas, y el rostro sigue en sombra.
+
+PNG de 640 x 724 con transparencia; spritesheet horizontal de 2560 x 724. El GIF tiene fondo crema para revision, el WebP conserva transparencia. animacion.json incluye posiciones y tiempos.
+
+Se comprobaron invariancia de todos los pixeles debajo de y=240 (cuerpo/cartas/escenario), coincidencia de la pose inicial y sintaxis del visor. La expresion queda pendiente de aprobacion visual.

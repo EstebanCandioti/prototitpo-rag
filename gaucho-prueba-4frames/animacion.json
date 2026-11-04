@@ -1,0 +1,177 @@
+{
+  "name": "gaucho_atencion",
+  "status": "prueba visual de cuatro poses; pendiente de aprobacion de movimiento",
+  "frame_count": 4,
+  "frame_size": [
+    640,
+    724
+  ],
+  "atlas_size": [
+    2560,
+    724
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "file": "frames/atencion_00.png",
+      "rect": [
+        0,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 1,
+      "file": "frames/atencion_01.png",
+      "rect": [
+        640,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 2,
+      "file": "frames/atencion_02.png",
+      "rect": [
+        1280,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 3,
+      "file": "frames/atencion_03.png",
+      "rect": [
+        1920,
+        0,
+        640,
+        724
+      ]
+    }
+  ],
+  "animations": {
+    "concentrado": {
+      "frames": [
+        0
+      ],
+      "loop": false
+    },
+    "entrar_atento": {
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frame_ms": 140,
+      "loop": false,
+      "hold_last": true
+    },
+    "atento": {
+      "frames": [
+        3
+      ],
+      "loop": false
+    },
+    "volver_concentrado": {
+      "frames": [
+        3,
+        2,
+        1,
+        0
+      ],
+      "frame_ms": 140,
+      "loop": false,
+      "hold_last": true
+    }
+  },
+  "preview": {
+    "sequence": [
+      0,
+      1,
+      2,
+      3,
+      2,
+      1
+    ],
+    "durations_ms": [
+      1000,
+      140,
+      140,
+      1100,
+      140,
+      140
+    ],
+    "loop": true
+  },
+  "registration": [
+    {
+      "source_bounds": [
+        9,
+        0,
+        523,
+        724
+      ],
+      "translation": [
+        34,
+        0
+      ],
+      "scale": 1,
+      "table_center_source": 285.5
+    },
+    {
+      "source_bounds": [
+        567,
+        0,
+        1088,
+        724
+      ],
+      "translation": [
+        -528,
+        0
+      ],
+      "scale": 1,
+      "table_center_source": 848.5
+    },
+    {
+      "source_bounds": [
+        1115,
+        0,
+        1633,
+        724
+      ],
+      "translation": [
+        -1073,
+        0
+      ],
+      "scale": 1,
+      "table_center_source": 1393.0
+    },
+    {
+      "source_bounds": [
+        1663,
+        0,
+        2172,
+        724
+      ],
+      "translation": [
+        -1618,
+        0
+      ],
+      "scale": 1,
+      "table_center_source": 1937.5
+    }
+  ],
+  "qa": {
+    "pose_count": 4,
+    "shared_scale": true,
+    "equal_canvas": true,
+    "fixed_lower_region_exact": true,
+    "clipping_detected": false,
+    "static_region": "all pixels at y>=375 and deck polygon; copied from pose 0",
+    "remaining_limit": "upper poncho/hat/hand ink may vary between generated drawings; limited animation, not interpolated motion"
+  }
+}

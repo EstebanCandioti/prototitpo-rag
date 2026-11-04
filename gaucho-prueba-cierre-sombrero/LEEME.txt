@@ -1,0 +1,17 @@
+GAUCHO — RESPUESTA Y CIERRE DEL SOMBRERO
+
+Abrir prueba.html con doble clic. El visor funciona localmente, sin servidor ni conexión al RAG, con ambos mazos y sin borrar el texto al finalizar el gesto.
+
+Se usa como referencia la mirada entrecerrada de gaucho-prueba-respondiendo/frames/respondiendo_03.png, no la mirada de ojos abiertos de atención. El final reutiliza exactamente gaucho-prueba-4frames/frames/atencion_00.png (en azul, la misma pose con las máscaras y la textura aprobadas del demo).
+
+Técnica: generación de cuatro dibujos de la parte superior a partir de las referencias originales, extracción por componentes conectados con el ayudante de sprites, escala compartida y registro horizontal. Se conserva la mesa y toda la zona desde y=375 copiando los originales. No se dibujan brazos, sombreros ni poses nuevas mediante código. Los extremos son píxeles de los frames originales.
+
+Los nuevos cuadros se generan con la herramienta integrada image_gen. La variante azul también se genera a partir de la tira roja y la textura azul de referencia. PROMPTS.md conserva el conjunto completo de prompts. originales/ conserva ambas tiras sin alterar.
+
+Secuencia: cuatro cuadros originales de mirada/asentimiento; cuatro nuevos (sube la mano, toca el ala con dos dedos, baja el sombrero, devuelve la mano); último cuadro de reposo original. Nueve cuadros de 640 x 724 por variante, atlas horizontal de 5760 x 724. Hay PNG individuales, WebP animado transparente, GIF con fondo papel para revisión y contacto JPG.
+
+El visor reproduce una sola vez y sostiene el reposo. Los GIF/WebP se repiten para revisión. El ciclo de 2,78 s ya está integrado en React con ambos mazos y termina en reposo sin ocultar la respuesta ni sus fuentes. El visor permite acelerar o ralentizar para revisión; no modifica los tiempos de React. animacion.json documenta la secuencia.
+
+QA: qa/registro.json comprueba cuatro grupos extraídos por variante, un tamaño uniforme, escala compartida, ausencia de recortes en el borde, zona inferior idéntica a la base y final exacto. Contactos revisados visualmente para pose, cinco cartas, mirada entrecerrada y gesto de los dedos. La parte superior generada puede tener variaciones de tinta, pliegues, tamaño de sombrero y disposición del abanico respecto de la base; no se afirma continuidad pixel a pixel del personaje completo. Las variantes roja y azul también pueden tener pequeñas diferencias de dibujo.
+
+Para reconstruir los archivos: Python 3 con Pillow; ejecutar python construir.py. Usa herramientas/extraer_poses.py, copia sin modificar del ayudante de extracción de sprites utilizado por el flujo de mascotas. No requiere clave de API para reconstruir, porque las imágenes generadas ya están guardadas.

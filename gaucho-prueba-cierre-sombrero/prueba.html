@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es-AR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gaucho · respuesta y cierre del sombrero</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3ead8;color:#383c30;font:15px/1.5 Georgia,serif}main{max-width:920px;margin:auto;padding:24px}.eyebrow{font:11px Arial,sans-serif;letter-spacing:2px;color:#a64d36}h1{font-size:30px;font-weight:400;line-height:1.2}.layout{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}.stage{text-align:center;min-width:0}canvas{display:block;height:340px;max-width:100%;width:auto;margin:auto}.bubble{position:relative;background:#fffaf0;border:1px solid #cfc1a6;border-radius:18px;padding:22px;margin-bottom:24px;white-space:pre-wrap}.bubble:after{content:'';position:absolute;width:18px;height:18px;bottom:-10px;left:45%;background:#fffaf0;border-right:1px solid #cfc1a6;border-bottom:1px solid #cfc1a6;transform:rotate(45deg)}.panel{border-top:1px solid #cfc1a6;padding-top:15px}button,select,input,textarea{font:14px Arial,sans-serif}button{padding:11px 14px;color:#fffaf0;background:#354c3b;border:0;border-radius:7px;cursor:pointer}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a64d36;outline-offset:3px}.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}label{display:block;margin:12px 0 6px;font:13px Arial,sans-serif}input[type=range],textarea,select{width:100%}textarea,select{padding:10px;border:1px solid #cfc1a6;background:#fffaf0;border-radius:6px;color:#383c30}textarea{min-height:100px;resize:vertical}.helper,#estado{font:12px/1.6 Arial,sans-serif;color:#756e5d}.check{display:flex;gap:7px;align-items:center}.secondary{background:#a64d36}footer{font:12px/1.6 Arial,sans-serif;border-top:1px solid #cfc1a6;margin-top:24px;padding-top:14px}a{color:#354c3b}@media(max-width:650px){main{padding:18px}.layout{grid-template-columns:1fr;gap:20px}h1{font-size:26px}canvas{height:290px}}
+</style>
+<main>
+<p class="eyebrow">ENTRE CARTAS · PRUEBA DEL GESTO</p>
+<h1>La respuesta termina. El texto queda.</h1>
+<div class="layout">
+<section class="stage" aria-label="Respuesta y gaucho">
+<div class="bubble" id="respuesta">El texto de la respuesta sigue visible mientras el gaucho se baja el sombrero y vuelve al reposo.</div>
+<canvas id="sprite" width="640" height="724" role="img" aria-label="Gaucho con cinco cartas: mira, se baja el sombrero y vuelve al reposo"></canvas>
+<p id="estado" role="status" aria-live="polite">Cargando las imágenes…</p>
+</section>
+<section class="panel" aria-label="Controles de revisión">
+<p class="helper">Se reutiliza la mirada entrecerrada de respuesta. Los cuatro cuadros nuevos muestran la mano subiendo, los dedos sobre el ala, la mirada oculta y la mano volviendo a las cartas.</p>
+<label for="baraja">Variante visual</label>
+<select id="baraja" disabled><option value="rojo">Rojo · española</option><option value="azul">Azul · inglesa/francesa</option></select>
+<div class="row"><button id="reproducir" disabled>Ver el ciclo una vez</button><button id="reposo" class="secondary" disabled>Volver al inicio</button></div>
+<label for="cuadro">Examinar cuadro <output id="numero">8 / 8</output></label>
+<input id="cuadro" type="range" min="0" max="8" step="1" value="8" disabled>
+<label for="velocidad">Velocidad de revisión <output id="factor">1,00×</output></label>
+<input id="velocidad" type="range" min="0.5" max="1.5" step="0.05" value="1">
+<label class="check"><input id="reducido" type="checkbox"> Reducir movimiento</label>
+<label for="texto">Texto de prueba del globo</label>
+<textarea id="texto">El texto de la respuesta sigue visible mientras el gaucho se baja el sombrero y vuelve al reposo.</textarea>
+<p class="helper">Duración integrada en React: aproximadamente 2,8 segundos. La velocidad de este visor es ajustable y no modifica los tiempos de la app.</p>
+</section>
+</div>
+<footer>PNG de 640 × 724 con transparencia. La mesa y la parte inferior se fijan con los originales; el último cuadro es la pose inicial original. Puede haber pequeñas variaciones de trazo o pliegues en la parte superior generada.<br><a href="contacto_rojo.jpg">Ver las poses rojas</a> · <a href="contacto_azul.jpg">Ver las poses azules</a> · <a href="animacion.json">Secuencia y tiempos</a></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id),canvas=$('sprite'),ctx=canvas.getContext('2d');
+const labels=['Atento original','Mirada seria','Asentimiento original','Mirada entrecerrada de respuesta','Sube la mano','Dos dedos tocan el ala','Baja el sombrero y oculta la mirada','Devuelve la mano a las cartas','Reposo original: ciclo terminado'];
+const times=[120,180,180,550,350,450,600,350,0],images={};
+let ready=false,token=0,timer,finishWait;
+const media=matchMedia('(prefers-reduced-motion: reduce)');$('reducido').checked=media.matches;
+function wait(ms){return new Promise(resolve=>{finishWait=resolve;timer=setTimeout(resolve,ms)})}
+function stop(){token++;clearTimeout(timer);finishWait?.();$('baraja').disabled=!ready;$('reproducir').disabled=!ready}
+function show(i){if(!ready)return;ctx.clearRect(0,0,640,724);ctx.drawImage(images[$('baraja').value],i*640,0,640,724,0,0,640,724);$('cuadro').value=i;$('numero').value=i+' / 8';$('estado').textContent=labels[i]}
+async function play(){stop();const current=token;$('reproducir').disabled=true;$('baraja').disabled=true;try{if($('reducido').checked){show(8);return}for(let i=0;i<9;i++){if(current!==token)return;show(i);if(times[i])await wait(times[i]/Number($('velocidad').value))}}finally{if(current===token){$('reproducir').disabled=false;$('baraja').disabled=false}}}
+$('reproducir').onclick=play;$('reposo').onclick=()=>{stop();show(8)};
+$('cuadro').oninput=()=>{stop();show(Number($('cuadro').value))};
+$('baraja').onchange=()=>{stop();show(8)};
+$('velocidad').oninput=()=>{$('factor').value=Number($('velocidad').value).toFixed(2).replace('.',',')+'×'};
+$('texto').oninput=()=>{$('respuesta').textContent=$('texto').value};
+$('reducido').onchange=()=>{if($('reducido').checked){stop();show(8)}};
+media.addEventListener('change',()=>{$('reducido').checked=media.matches;if(media.matches){stop();show(8)}});
+Promise.all(['rojo','azul'].map(kind=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{images[kind]=img;resolve()};img.onerror=reject;img.src='spritesheet_respuesta_sombrero_'+kind+'.png'}))).then(()=>{ready=true;for(const id of ['baraja','reproducir','reposo','cuadro'])$(id).disabled=false;show(8)}).catch(()=>{$('estado').textContent='No se pudieron cargar los atlas. Conservá los PNG en la misma carpeta que este visor.'});
+</script>
+</html>

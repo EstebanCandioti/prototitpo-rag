@@ -1,0 +1,137 @@
+{
+  "method": "connected-components",
+  "shared_scale": 1.04,
+  "translation": [
+    20,
+    -19
+  ],
+  "fixed_scene_from_y": 375,
+  "variants": {
+    "rojo": {
+      "source_size": [
+        2194,
+        717
+      ],
+      "components": [
+        {
+          "source_bbox": [
+            33,
+            26,
+            504,
+            672
+          ],
+          "x_offset": 0
+        },
+        {
+          "source_bbox": [
+            582,
+            26,
+            1054,
+            672
+          ],
+          "x_offset": 549
+        },
+        {
+          "source_bbox": [
+            1131,
+            41,
+            1602,
+            672
+          ],
+          "x_offset": 1098
+        },
+        {
+          "source_bbox": [
+            1679,
+            41,
+            2151,
+            672
+          ],
+          "x_offset": 1646
+        }
+      ],
+      "frame_count": 9,
+      "frame_size": [
+        640,
+        724
+      ],
+      "lower_scene_identical": true,
+      "initial_look_is_original": true,
+      "final_pose_is_original": true,
+      "edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "azul": {
+      "source_size": [
+        2170,
+        725
+      ],
+      "components": [
+        {
+          "source_bbox": [
+            34,
+            31,
+            498,
+            674
+          ],
+          "x_offset": 0
+        },
+        {
+          "source_bbox": [
+            577,
+            31,
+            1042,
+            674
+          ],
+          "x_offset": 543
+        },
+        {
+          "source_bbox": [
+            1121,
+            47,
+            1585,
+            674
+          ],
+          "x_offset": 1087
+        },
+        {
+          "source_bbox": [
+            1664,
+            47,
+            2130,
+            674
+          ],
+          "x_offset": 1630
+        }
+      ],
+      "frame_count": 9,
+      "frame_size": [
+        640,
+        724
+      ],
+      "lower_scene_identical": true,
+      "initial_look_is_original": true,
+      "final_pose_is_original": true,
+      "edge_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

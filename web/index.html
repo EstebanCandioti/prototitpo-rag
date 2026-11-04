@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#123b34">
+    <title>Mesa de pruebas · RAG de cartas</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="brand-mark" aria-hidden="true">♠</div>
+        <div>
+          <p class="eyebrow">RAG · reglas de cartas</p>
+          <h1>Mesa de pruebas</h1>
+        </div>
+        <span class="local-badge">Ejecución local</span>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls" aria-labelledby="config-title">
+          <div class="section-heading">
+            <span class="step">01</span>
+            <div>
+              <p class="eyebrow">Configuración</p>
+              <h2 id="config-title">Prepará la consulta</h2>
+            </div>
+          </div>
+
+          <form id="form-busqueda">
+            <label for="ejemplo">Caso de prueba</label>
+            <select id="ejemplo">
+              <option value="">Pregunta propia</option>
+              <option value="brisca-palo">Brisca · palo de salida</option>
+              <option value="brisca-penalidad">Brisca · penalidad ausente</option>
+              <option value="escoba-oros">Escoba · todos los oros</option>
+              <option value="canasta-minimo">Canasta · mínimo de apertura</option>
+            </select>
+
+            <label for="pregunta">Pregunta</label>
+            <textarea id="pregunta" rows="4" maxlength="1000" required placeholder="Por ejemplo: En el truco, ¿cómo funciona el envido?"></textarea>
+            <div class="detected-game" id="juego-detectado">Mencioná el juego en la pregunta; se identificará al buscar.</div>
+
+            <label for="cantidad">Máximo de fragmentos recuperados</label>
+            <select id="cantidad">
+              <option value="1">1 fragmento</option>
+              <option value="2" selected>2 fragmentos</option>
+              <option value="3">3 fragmentos</option>
+              <option value="5">5 fragmentos</option>
+              <option value="8">8 fragmentos · inspección</option>
+            </select>
+
+            <button class="button button-primary" id="buscar" type="submit">Buscar fragmentos <span aria-hidden="true">↗</span></button>
+          </form>
+
+          <div class="divider"></div>
+
+          <div class="threshold-heading">
+            <div>
+              <p class="eyebrow">Filtro de similitud</p>
+              <h2>Umbral</h2>
+            </div>
+            <output id="valor-umbral" for="umbral">0.60</output>
+          </div>
+          <input id="umbral" type="range" min="0" max="1" step="0.01" value="0.60" aria-label="Umbral de similitud">
+          <div class="range-labels"><span>0.00 · sin corte</span><span>1.00</span></div>
+          <p class="helper">Mové la barra después de buscar: la selección cambia al instante, sin repetir el embedding.</p>
+        </section>
+
+        <div class="results-column">
+          <section class="panel results" aria-labelledby="results-title">
+            <div class="section-heading">
+              <span class="step">02</span>
+              <div>
+                <p class="eyebrow">Recuperación vectorial</p>
+                <h2 id="results-title">Fragmentos encontrados</h2>
+              </div>
+            </div>
+            <div class="summary" id="resumen">Escribí una pregunta con el nombre del juego para ver los puntajes.</div>
+            <div id="resultados" class="result-list" aria-live="polite"></div>
+          </section>
+
+          <section class="panel answer" aria-labelledby="answer-title">
+            <div class="answer-top">
+              <div class="section-heading">
+                <span class="step">03</span>
+                <div>
+                  <p class="eyebrow">Generación</p>
+                  <h2 id="answer-title">Respuesta</h2>
+                </div>
+              </div>
+              <button class="button button-secondary" id="generar" type="button" disabled>Generar respuesta</button>
+            </div>
+            <p id="respuesta" class="answer-text">La respuesta se generará con los fragmentos que superen el umbral.</p>
+            <p id="estado" class="status" role="status" aria-live="polite"></p>
+          </section>
+        </div>
+      </main>
+
+      <footer>La similitud mide cercanía entre textos; no confirma que el fragmento contenga la respuesta.</footer>
+    </div>
+  </body>
+</html>

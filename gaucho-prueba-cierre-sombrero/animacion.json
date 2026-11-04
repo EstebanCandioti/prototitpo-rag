@@ -1,0 +1,149 @@
+{
+  "name": "gaucho_respuesta_cierre_sombrero",
+  "status": "versión revisada e integrada en React; tiempos ajustables",
+  "frame_size": [
+    640,
+    724
+  ],
+  "frame_count": 9,
+  "variants": [
+    "rojo",
+    "azul"
+  ],
+  "atlas": "spritesheet_respuesta_sombrero_{variant}.png",
+  "frames": [
+    {
+      "index": 0,
+      "label": "Atento original",
+      "rect": [
+        0,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 1,
+      "label": "Mirada seria",
+      "rect": [
+        640,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 2,
+      "label": "Asentimiento",
+      "rect": [
+        1280,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 3,
+      "label": "Mirada de respuesta",
+      "rect": [
+        1920,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 4,
+      "label": "Sube la mano",
+      "rect": [
+        2560,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 5,
+      "label": "Toca el ala",
+      "rect": [
+        3200,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 6,
+      "label": "Oculta los ojos",
+      "rect": [
+        3840,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 7,
+      "label": "Vuelve la mano",
+      "rect": [
+        4480,
+        0,
+        640,
+        724
+      ]
+    },
+    {
+      "index": 8,
+      "label": "Reposo original",
+      "rect": [
+        5120,
+        0,
+        640,
+        724
+      ]
+    }
+  ],
+  "playback": {
+    "sequence": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "durations_ms": [
+      120,
+      180,
+      180,
+      550,
+      350,
+      450,
+      600,
+      350,
+      0
+    ],
+    "loop": false,
+    "hold_last": true,
+    "keep_answer_visible": true
+  },
+  "preview": {
+    "durations_ms": [
+      120,
+      180,
+      180,
+      550,
+      350,
+      450,
+      600,
+      350,
+      1000
+    ],
+    "loop": true
+  },
+  "qa_report": "qa/registro.json",
+  "limitations": "Los cuadros nuevos son dibujos generados completos de la parte superior. Pueden variar levemente el trazo, los pliegues y la disposición de las cartas respecto de las poses originales. El cambio de mazo azul/rojo puede presentar pequeñas diferencias entre ambas variantes generadas."
+}

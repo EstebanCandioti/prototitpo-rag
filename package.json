@@ -1,0 +1,19 @@
+{
+  "name": "rag-propio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node probar-deteccion.mjs && node --test web-handler.test.mjs && npm --prefix frontend test",
+    "web": "node --env-file=.env servidor-web.mjs",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "node --env-file=.env servidor-web.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
+}

@@ -1,0 +1,5 @@
+Abrir prueba.html con doble clic en un navegador. Funciona sin servidor ni internet.
+Demo visual; no conecta al RAG. Las respuestas son ejemplos.
+Atención, pensamiento y respuesta disponibles con ambos mazos. Elegir azul y preguntar conserva la baraja azul.
+Los sprites azules se componen al cargar con máscaras limitadas al interior de las cartas, reutilizando la textura azul aprobada. No se regenera al personaje. Botón para exportar los tres spritesheets PNG.
+Enter envía; Shift+Enter agrega una línea. Opción de reducir movimiento disponible.

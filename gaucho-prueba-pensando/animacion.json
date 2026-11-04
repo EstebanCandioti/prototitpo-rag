@@ -1,0 +1,168 @@
+{
+  "name": "pensando_transferencia_dos_cartas",
+  "version": 2,
+  "frame_size": [
+    640,
+    724
+  ],
+  "frame_count": 5,
+  "unique_poses": 4,
+  "frames": [
+    {
+      "index": 0,
+      "file": "frames/pensando_00.png",
+      "rect": [
+        0,
+        0,
+        640,
+        724
+      ],
+      "duration_ms": 800
+    },
+    {
+      "index": 1,
+      "file": "frames/pensando_01.png",
+      "rect": [
+        640,
+        0,
+        640,
+        724
+      ],
+      "duration_ms": 220
+    },
+    {
+      "index": 2,
+      "file": "frames/pensando_02.png",
+      "rect": [
+        1280,
+        0,
+        640,
+        724
+      ],
+      "duration_ms": 500
+    },
+    {
+      "index": 3,
+      "file": "frames/pensando_03.png",
+      "rect": [
+        1920,
+        0,
+        640,
+        724
+      ],
+      "duration_ms": 240
+    },
+    {
+      "index": 4,
+      "file": "frames/pensando_04.png",
+      "rect": [
+        2560,
+        0,
+        640,
+        724
+      ],
+      "duration_ms": 800
+    }
+  ],
+  "action": "Separa dos cartas del grupo y las reinserta del otro lado.",
+  "loop": true,
+  "registration": [
+    {
+      "source_crop": [
+        0,
+        0,
+        440,
+        724
+      ],
+      "scale": 1.1818181818181819,
+      "translation": [
+        39,
+        -59
+      ],
+      "anchor": [
+        238.0,
+        405
+      ]
+    },
+    {
+      "source_crop": [
+        440,
+        0,
+        878,
+        724
+      ],
+      "scale": 1.1818181818181819,
+      "translation": [
+        45,
+        -59
+      ],
+      "anchor": [
+        673.0,
+        405
+      ]
+    },
+    {
+      "source_crop": [
+        878,
+        0,
+        1318,
+        724
+      ],
+      "scale": 1.1818181818181819,
+      "translation": [
+        49,
+        -59
+      ],
+      "anchor": [
+        1107.0,
+        405
+      ]
+    },
+    {
+      "source_crop": [
+        1318,
+        0,
+        1738,
+        724
+      ],
+      "scale": 1.1818181818181819,
+      "translation": [
+        58,
+        -59
+      ],
+      "anchor": [
+        1539.5,
+        405
+      ]
+    },
+    {
+      "source_crop": [
+        1738,
+        0,
+        2172,
+        724
+      ],
+      "scale": 1.1818181818181819,
+      "translation": [
+        49,
+        -59
+      ],
+      "anchor": [
+        1967.0,
+        405
+      ]
+    }
+  ],
+  "qa": {
+    "no_shoulder_patch": true,
+    "lower_scene_fixed": true,
+    "loop_end_matches_start": true,
+    "fully_generated_upper_body": true,
+    "leftmost_card_contour_repaired_in_frames": [
+      1,
+      2
+    ],
+    "other_frames_unchanged_by_card_repair": true
+  },
+  "limitations": "La parte superior usa dibujos completos nuevos: puede haber pequeñas variaciones de tinta y pliegues; no se afirma igualdad pixel por pixel con la prueba de atencion."
+}

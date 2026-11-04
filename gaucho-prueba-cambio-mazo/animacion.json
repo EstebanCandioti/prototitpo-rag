@@ -1,0 +1,197 @@
+{
+  "name": "gaucho_cambio_mazo",
+  "status": "prueba de movimiento y dorsos para aprobar",
+  "frame_count": 6,
+  "frame_size": [
+    640,
+    724
+  ],
+  "atlas_size": [
+    3840,
+    724
+  ],
+  "frames": [
+    {
+      "index": 0,
+      "file": "frames/mazo_00.png",
+      "rect": [
+        0,
+        0,
+        640,
+        724
+      ],
+      "deck": "espanola"
+    },
+    {
+      "index": 1,
+      "file": "frames/mazo_01.png",
+      "rect": [
+        640,
+        0,
+        640,
+        724
+      ],
+      "deck": "espanola"
+    },
+    {
+      "index": 2,
+      "file": "frames/mazo_02.png",
+      "rect": [
+        1280,
+        0,
+        640,
+        724
+      ],
+      "deck": "espanola"
+    },
+    {
+      "index": 3,
+      "file": "frames/mazo_03.png",
+      "rect": [
+        1920,
+        0,
+        640,
+        724
+      ],
+      "deck": "inglesa"
+    },
+    {
+      "index": 4,
+      "file": "frames/mazo_04.png",
+      "rect": [
+        2560,
+        0,
+        640,
+        724
+      ],
+      "deck": "inglesa"
+    },
+    {
+      "index": 5,
+      "file": "frames/mazo_05.png",
+      "rect": [
+        3200,
+        0,
+        640,
+        724
+      ],
+      "deck": "inglesa"
+    }
+  ],
+  "decks": {
+    "espanola": {
+      "color": "rojo",
+      "motif": "rombo crema, dorso actual"
+    },
+    "inglesa": {
+      "color": "azul",
+      "motif": "medallon ornamental crema"
+    }
+  },
+  "animations": {
+    "espanola_a_inglesa": {
+      "sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "frame_ms": 180,
+      "swap_at_frame": 3,
+      "loop": false,
+      "hold_last": true
+    },
+    "inglesa_a_espanola": {
+      "sequence": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+      ],
+      "frame_ms": 180,
+      "swap_at_frame": 2,
+      "loop": false,
+      "hold_last": true
+    }
+  },
+  "qa": {
+    "same_closed_pose_across_swap": true,
+    "closed_frame_difference_only_top_deck": true,
+    "shared_scale": true,
+    "static_lower_scene": true,
+    "no_clipping": true
+  },
+  "registration": [
+    {
+      "source_cell": [
+        0,
+        0
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -60,
+        29
+      ]
+    },
+    {
+      "source_cell": [
+        1,
+        0
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -22,
+        29
+      ]
+    },
+    {
+      "source_cell": [
+        2,
+        0
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -17,
+        29
+      ]
+    },
+    {
+      "source_cell": [
+        0,
+        1
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -59,
+        36
+      ]
+    },
+    {
+      "source_cell": [
+        1,
+        1
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -23,
+        34
+      ]
+    },
+    {
+      "source_cell": [
+        2,
+        1
+      ],
+      "scale": 1.3304093567251463,
+      "translation": [
+        -19,
+        34
+      ]
+    }
+  ],
+  "limitations": "Dorsos originales elegidos para distinguir familias de juegos; no son una identificacion universal del tipo de baraja. Parte superior generada completa: pueden existir pequeñas variaciones de tinta y pliegues."
+}

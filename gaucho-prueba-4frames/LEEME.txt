@@ -1,0 +1,11 @@
+PRUEBA DE ATENCION — 4 FRAMES
+
+Usa la ultima tira aprobada: poncho con escote en V bajo, sin pañuelo; cabeza y sombrero suben, ojos por encima de hombros.
+
+Abrir prueba.html para reproducir, avanzar manualmente o mantener la pose final. Es autocontenida y funciona sin Internet. prueba_atencion.gif tiene fondo crema solamente para revision; prueba_atencion.webp y los cuatro PNG conservan transparencia.
+
+Cada frame mide 640 x 724. spritesheet_atencion.png contiene cuatro celdas de ese tamaño, en horizontal, y animacion.json documenta coordenadas y tiempos. En la app: entrar_atento una sola vez al comenzar a escribir, mantener frame 3 y reproducir la secuencia inversa al volver a concentrado. No mantener el bucle de demostracion permanentemente.
+
+Se extrajeron las cuatro poses detectando los grupos visibles. Se uso escala compartida y traslacion horizontal para alinear la mesa. La mesa desde y=375, piernas, silla y mazo se fijaron usando pixeles del primer frame. No se generaron nuevos dibujos ni frames intermedios.
+
+LIMITES: es una prueba de animacion limitada, no una animacion final aprobada. En la parte superior pueden existir pequeñas variaciones de tinta, sombrero o pliegues entre los dibujos generados. Revisar el GIF/HTML al tamaño de uso antes de producir otras acciones.
