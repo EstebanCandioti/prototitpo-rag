@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node probar-deteccion.mjs && node --test web-handler.test.mjs contexto.test.mjs codespaces.test.mjs && npm --prefix frontend test",
+    "test": "node probar-deteccion.mjs && node --test web-handler.test.mjs contexto.test.mjs codespaces.test.mjs backend/pruebas/consultas.test.mjs backend/pruebas/control-postgres.test.mjs && npm --prefix frontend test",
     "web": "node --env-file-if-exists=.env servidor-web.mjs",
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",

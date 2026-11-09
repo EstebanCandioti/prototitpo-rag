@@ -1,11 +1,8 @@
-import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
-import { resolve, sep, extname } from "node:path";
-import { metadatoJuego } from "./metadatos-juegos.mjs";
-import { validarContexto, resolverConsulta, construirPrompt } from "./conversacion.mjs";
-import { reformularConsulta, validarPreguntaResuelta } from "./reformular-consulta.mjs";
-import { construirPlanContexto, limitesContexto } from "./seleccionar-contexto.mjs";
-import { formatearContexto, limpiarRespuesta, esAbstencion } from "./contexto-respuesta.mjs";
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { resolve, sep, extname } from 'node:path';
+import { atenderConsulta } from './backend/http/consultas.mjs';
+import { errorPublico } from './backend/errores.mjs';
 
 const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png',
@@ -23,169 +20,45 @@ function origenPermitido(origen, host, origenPublico, permitirProxyLocalHttps) {
   catch { return false; }
 }
 
-// Inyección de dependencias para probar el contrato sin invocar proveedores reales.
-export function crearServidor({ juegos, umbralInicial, plantilla, dist, embedding, buscar, db, responder, origenPublico, permitirProxyLocalHttps = false }) {
-  const sinRespuesta = "No lo encuentro en los documentos.";
+
+// El HTTP recibe un caso de uso ya compuesto; no construye proveedores ni DB.
+export function crearServidor({ juegos, dist, origenPublico, permitirProxyLocalHttps = false, aplicacion }) {
+  if (!aplicacion) throw new Error('Falta inyectar la aplicación de consultas.');
   function json(res, estado, datos) {
-    res.writeHead(estado, {
-      "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store",
-    });
+    res.writeHead(estado, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
     res.end(JSON.stringify(datos));
   }
-
   async function cuerpoJson(req) {
-    let contenido = "";
+    const partes=[]; let bytes=0;
     for await (const parte of req) {
-      contenido += parte;
-      if (contenido.length > 16000) {
-        const error = new Error("La solicitud es demasiado grande");
-        error.estado = 413;
-        throw error;
-      }
+      bytes+=parte.length;
+      if(bytes>16000)throw Object.assign(new Error('La solicitud es demasiado grande'),{estado:413});
+      partes.push(parte);
     }
+    try { return JSON.parse(Buffer.concat(partes).toString('utf8')); }
+    catch { throw Object.assign(new Error('El cuerpo debe ser JSON válido'),{estado:400}); }
+  }
+  return createServer(async(req,res)=>{
+    const ruta=new URL(req.url,'http://localhost').pathname;
     try {
-      return JSON.parse(contenido);
-    } catch {
-      const error = new Error("El cuerpo debe ser JSON válido");
-      error.estado = 400;
-      throw error;
-    }
-  }
-
-  function validarPregunta(datos) {
-    const pregunta = typeof datos?.pregunta === "string" ? datos.pregunta.trim() : "";
-    if (!pregunta || pregunta.length > 1000) {
-      const error = new Error("Escribí una pregunta de hasta 1000 caracteres");
-      error.estado = 400;
-      throw error;
-    }
-    return pregunta;
-  }
-
-  function consultaDeDatos(datos) {
-    const pregunta = validarPregunta(datos);
-    const contexto = validarContexto(datos.contexto, juegos);
-    const consulta = { pregunta, ...resolverConsulta(pregunta, contexto, juegos) };
-    if (datos.preguntaResuelta !== undefined) {
-      consulta.preguntaResuelta = validarPreguntaResuelta(datos.preguntaResuelta, consulta.juego, juegos);
-      consulta.consultaBusqueda = consulta.preguntaResuelta;
-    }
-    return consulta;
-  }
-
-  return createServer(async (req, res) => {
-    try {
-      const ruta = new URL(req.url, "http://localhost").pathname;
-
-      if (req.method === "POST" && req.headers.origin &&
-          !origenPermitido(req.headers.origin, req.headers.host, origenPublico, permitirProxyLocalHttps)) {
-        json(res, 403, { error: "Origen no permitido" });
-        return;
+      if(req.method==='POST'&&req.headers.origin&&!origenPermitido(req.headers.origin,req.headers.host,origenPublico,permitirProxyLocalHttps)){
+        json(res,403,{error:'Origen no permitido',codigo:'ORIGEN_NO_PERMITIDO'});return;
       }
-
-      if (req.method === "GET" && ruta === "/api/juegos") {
-        json(res, 200, {
-          juegos,
-          umbralInicial: Number.isFinite(umbralInicial) && umbralInicial >= 0 && umbralInicial <= 1
-            ? umbralInicial : 0.6,
-        });
-        return;
+      if(req.method==='GET'&&ruta==='/api/juegos'){
+        json(res,200,{juegos,umbralInicial:aplicacion.config.umbral,apiVersion:1,
+          diagnosticosHabilitados:aplicacion.config.diagnosticos,autenticacion:aplicacion.config.modoIdentidad});return;
       }
-
-      // Clasificación por nombre y metadatos del corpus: sin vectores, SQL ni LLM.
-      if (req.method === "POST" && ruta === "/api/detectar") {
-        const { juego } = consultaDeDatos(await cuerpoJson(req));
-        json(res, 200, { juego, metadatos: metadatoJuego(juego) });
-        return;
+      if(req.method==='POST'&&ruta==='/api/v1/consultas'){
+        await atenderConsulta({req,res,aplicacion,cuerpoJson,json});return;
       }
-
-      if (req.method === "POST" && ruta === "/api/reformular") {
-        const consulta = consultaDeDatos(await cuerpoJson(req));
-        json(res, 200, await reformularConsulta(consulta, responder, juegos));
-        return;
+      const diagnostico=/^\/api\/(?:diagnostico\/)?(detectar|reformular|recuperar|responder)$/.exec(ruta);
+      if(req.method==='POST'&&diagnostico&&aplicacion.config.diagnosticos){
+        const usuario=await aplicacion.identificar(req);
+        const resultado=await aplicacion.diagnosticar({accion:diagnostico[1],datos:await cuerpoJson(req),usuario,
+          ...(req.headers['idempotency-key']?{clave:req.headers['idempotency-key']}:{})});
+        // La compatibilidad de diagnóstico conserva sus mensajes de error.
+        json(res,resultado.estado,resultado.datos);return;
       }
-
-      if (req.method === "POST" && ruta === "/api/recuperar") {
-        const datos = await cuerpoJson(req);
-        const { pregunta, juego, consultaBusqueda, preguntaResuelta } = consultaDeDatos(datos);
-        const k = Number(datos.k);
-        if (!Number.isInteger(k) || k < 1 || k > limitesContexto.candidatos) {
-          json(res, 400, { error: `La cantidad de candidatos debe estar entre 1 y ${limitesContexto.candidatos}` });
-          return;
-        }
-        const inicio = performance.now();
-        const vector = await embedding(consultaBusqueda);
-        const conVector = performance.now();
-        const resultados = (await buscar(vector, juego, k)).filter(f => f.juego === juego);
-        const conCandidatos = performance.now();
-        let planContexto;
-        if (datos.ampliar === true && resultados.length) {
-          // La ampliación se obtiene de SQL, con el juego y los orígenes de la búsqueda.
-          // No cambia los embeddings ni requiere reindexar.
-          const { rows } = await db.query(
-            `SELECT id, juego, origen, seccion, posicion, texto
-               FROM fragmentos WHERE juego = $1 ORDER BY posicion`, [juego]);
-          const origenes = new Set(resultados.map(f => f.origen));
-          planContexto = construirPlanContexto({ pregunta: preguntaResuelta ?? pregunta,
-            juego, resultados, fragmentos: rows.filter(f => f.juego === juego && origenes.has(f.origen)) });
-        }
-        const fin = performance.now();
-        json(res, 200, { juego, metadatos: metadatoJuego(juego), consultaBusqueda, preguntaResuelta, resultados, planContexto,
-          tiempos: { embedding: Math.round(conVector - inicio), busqueda: Math.round(conCandidatos - conVector), secciones: Math.round(fin - conCandidatos) } });
-        return;
-      }
-
-      if (req.method === "POST" && ruta === "/api/responder") {
-        const datos = await cuerpoJson(req);
-        const { pregunta, juego, contexto, preguntaResuelta } = consultaDeDatos(datos);
-        const ids = datos.ids;
-        if (!Array.isArray(ids) || ids.length > limitesContexto.fragmentos || ids.some(id => !Number.isInteger(id) || id < 1)) {
-          json(res, 400, { error: "La selección de fragmentos no es válida" });
-          return;
-        }
-        if (ids.length === 0) {
-          json(res, 200, { respuesta: sinRespuesta, modeloInvocado: false, sinRespuesta: true, fuentes: [] });
-          return;
-        }
-
-        const { rows } = await db.query(
-          `SELECT id, juego, origen, seccion, posicion, texto
-             FROM fragmentos
-            WHERE juego = $1 AND id = ANY($2::int[])`,
-          [juego, ids],
-        );
-        const porId = new Map(rows.map(r => [r.id, r]));
-        if (new Set(ids).size !== ids.length || ids.some(id => !porId.has(id))) {
-          json(res, 400, { error: "La selección no corresponde al juego indicado" });
-          return;
-        }
-
-        const seleccion = ids.map(id => porId.get(id));
-        if (seleccion.reduce((n, f) => n + f.texto.length, 0) > limitesContexto.caracteres) {
-          json(res, 400, { error: "El contexto seleccionado supera el límite de texto. Ajustá la selección en Modo de pruebas." });
-          return;
-        }
-        const fragmentos = formatearContexto(seleccion);
-        const prompt = construirPrompt(plantilla, { pregunta, fragmentos, contexto, preguntaResuelta });
-        const inicio = performance.now();
-        const respuestaOriginal = await responder(prompt);
-        const respuesta = limpiarRespuesta(respuestaOriginal);
-        if (!respuesta) throw new Error('El proveedor devolvió una respuesta vacía');
-        const abstencion = esAbstencion(respuesta);
-        json(res, 200, {
-          // Las citas visibles son las fuentes estructuradas verificadas; se retira
-          // el pie libre del LLM para que no pueda introducir una URL o juego ajeno.
-          respuesta: abstencion ? sinRespuesta : respuesta,
-          respuestaOriginal, duracionMs: Math.round(performance.now() - inicio), caracteresContexto: fragmentos.length,
-          modeloInvocado: true,
-          sinRespuesta: abstencion,
-          // Fuentes de contexto verificadas por SQL, nunca inferidas del texto del LLM.
-          fuentes: abstencion ? [] : ids.map(id => porId.get(id)),
-        });
-        return;
-      }
-
       if (req.method === "GET" && !ruta.startsWith("/api/")) {
         const archivo = ruta === "/" ? "index.html" : ruta.slice(1);
         const destino = resolve(dist, archivo);
@@ -206,20 +79,10 @@ export function crearServidor({ juegos, umbralInicial, plantilla, dist, embeddin
         return;
       }
       json(res, 404, { error: "Ruta no encontrada" });
-    } catch (error) {
-      const estado = error.estado ?? 500;
-      if (estado === 500) console.error(error);
-      const conexion = estado === 500 && (error.code === "ECONNREFUSED" ||
-        error.code === "57P01" || error.code === "ETIMEDOUT" ||
-        error.errors?.some(e => e.code === "ECONNREFUSED"));
-      json(res, estado, { error: conexion
-        ? "PostgreSQL no está disponible. Iniciá la base de datos y volvé a buscar."
-        : estado === 500 && error.message?.includes("¿Está abierto Ollama?")
-          ? "Ollama no está disponible. Iniciá Ollama y volvé a buscar."
-        : estado === 500
-          ? "No se pudo completar la solicitud. Revisá la consola del servidor."
-          : error.message });
+    } catch(error) {
+      const publico=errorPublico(error);
+      if(!res.headersSent)json(res,publico.estado,{error:publico.error,codigo:publico.codigo});
+      else res.end();
     }
   });
-
 }

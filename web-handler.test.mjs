@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { crearServidor } from './web-handler.mjs';
+import { crearAplicacionParaPruebas } from './backend/pruebas/soporte.mjs';
 import { leerCorpus } from './leer-corpus.mjs';
 import { metadatoJuego } from './metadatos-juegos.mjs';
 import { construirPrompt } from './conversacion.mjs';
@@ -17,7 +18,7 @@ const filas = [
 ];
 async function iniciar(t, cambios = {}) {
   const llamadas = { embedding: 0, textosEmbedding: [], buscar: [], sql: [], prompts: [] };
-  const servidor = crearServidor({
+  const dependencias = {
     juegos: corpus.map(r => r.juego), umbralInicial: .55, plantilla, dist: fileURLToPath(new URL('./frontend/dist/', import.meta.url)),
     embedding: async texto => { llamadas.embedding++; llamadas.textosEmbedding.push(texto); return [1, 0]; },
     buscar: async (v, juego, k) => { llamadas.buscar.push({ juego, k }); return filas.filter(f => f.juego === juego).slice(0, k); },
@@ -26,7 +27,8 @@ async function iniciar(t, cambios = {}) {
     } },
     responder: async prompt => { llamadas.prompts.push(prompt); return 'Respuesta de prueba.\nFuente: inventada'; },
     ...cambios,
-  });
+  };
+  const servidor = crearServidor({ ...dependencias, aplicacion: crearAplicacionParaPruebas(dependencias) });
   await new Promise(resolve => servidor.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise(resolve => { servidor.close(resolve); servidor.closeAllConnections(); }));
   const base = `http://127.0.0.1:${servidor.address().port}`;
