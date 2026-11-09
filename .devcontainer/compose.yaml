@@ -15,6 +15,8 @@ services:
       MODELO_CHAT: gpt-6-luna
       UMBRAL: "0.55"
       PUERTO_WEB: "3000"
+      AUTH_MODE: desarrollo
+      DIAGNOSTICOS_HABILITADOS: "true"
     depends_on:
       postgres:
         condition: service_healthy

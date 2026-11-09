@@ -2,11 +2,23 @@
 
 Esta configuración ejecuta el backend y React junto a PostgreSQL/pgvector y Ollama con `bge-m3` en la máquina de GitHub. OpenAI (`gpt-6-luna`) genera las respuestas. La base de trabajo de Windows y su `.env` no se utilizan en la prueba.
 
+## Rama de preparación móvil
+
+La rama `feat/backend-mobile` incorpora la [API pública v1, identidad de desarrollo y cuotas persistentes](./LEEME-api.md). `main` y las demos ya ejecutándose no se modifican. Para probar esta versión elegí esa rama al crear un entorno; el arranque añade tablas de control sin reindexar. El modo normal de React hace una sola operación y **Evaluar por etapas** conserva el diagnóstico de desarrollo, con una cuota distinta.
+
+Para usar el puerto 3001 desde el navegador, en la terminal web del Codespace:
+
+```bash
+PUERTO_WEB=3001 npm run codespaces:iniciar
+```
+
+Abrí ese puerto en Ports y mantené la visibilidad **Private**. El comando inicia el backend y sirve React; no hace falta VS Code de escritorio. El puerto predeterminado sigue siendo 3000.
+
 ## Primera creación
 
 1. Subí esta versión al repositorio. El repositorio elegido para la prueba es [EstebanCandioti/prototitpo-rag](https://github.com/EstebanCandioti/prototitpo-rag).
 2. En [Settings → Codespaces → Secrets](https://github.com/settings/codespaces), agregá `API_KEY` con tu clave de OpenAI y dale acceso únicamente a ese repositorio. Si ya existía una clave de Gemini con ese nombre, reemplazala. Para aplicar la nueva configuración de `.devcontainer/compose.yaml` en un Codespace existente, ejecutá «Codespaces: Rebuild Container». Nunca pegues la clave en un archivo versionado ni en el chat. GitHub también puede solicitar este secreto al crear el entorno.
-3. Abrí [Crear Codespace](https://codespaces.new/EstebanCandioti/prototitpo-rag), elegí la rama `main` y una máquina de **2 núcleos / 8 GB**. Revisá tu cuota gratuita disponible antes de crearlo. Se configura un puerto privado para la prueba.
+3. Abrí [Crear Codespace](https://codespaces.new/EstebanCandioti/prototitpo-rag), elegí `feat/backend-mobile` para probar esta etapa (o `main` para la demo anterior) y una máquina de **2 núcleos / 8 GB**. Revisá tu cuota gratuita disponible antes de crearlo. Se configura un puerto privado para la prueba.
 4. Esperá la preparación inicial. El script instala dependencias, compila React, descarga `bge-m3` en GitHub y genera el índice de la base nueva `rag_demo`. La descarga y el trabajo de CPU ocurren en el Codespace, no en la PC de la facultad. Este proceso no llama a OpenAI.
 5. En la terminal del Codespace ejecutá:
 

@@ -1,0 +1,42 @@
+name: Backend mobile - pruebas
+on:
+  push:
+    branches: [feat/backend-mobile]
+  workflow_dispatch:
+concurrency:
+  group: backend-mobile-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: rag_test
+          POSTGRES_PASSWORD: solo_ci_pruebas
+          POSTGRES_DB: rag_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rag_test -d rag_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://rag_test:solo_ci_pruebas@127.0.0.1:5432/rag_test
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm --prefix frontend ci --no-bin-links
+      - run: npm test
+      - run: npm run build
