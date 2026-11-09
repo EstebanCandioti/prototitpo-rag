@@ -16,7 +16,7 @@
   },
   "postCreateCommand": "node scripts/codespaces.mjs preparar",
   "secrets": {
-    "API_KEY": { "description": "Clave de Gemini para interpretar y responder. Solo se utiliza en el backend; nunca se guarda en el repositorio." }
+    "API_KEY": { "description": "Clave de OpenAI para interpretar y responder. Solo se utiliza en el backend; nunca se guarda en el repositorio." }
   },
   "shutdownAction": "stopCompose"
 }

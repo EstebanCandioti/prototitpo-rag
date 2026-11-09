@@ -159,40 +159,40 @@ export default function App() {
   }
   const mensaje = estado === 'deteccion' ? 'Identificando el juego…'
     : estado === 'reformulacion' ? 'Estoy interpretando tu pregunta con lo que veníamos conversando.'
-    : estado === 'busqueda' ? 'Voy a buscar las reglas en los documentos.'
-    : estado === 'generacion' ? 'Estoy preparando tu respuesta…'
+    : estado === 'busqueda' ? 'Dejame que me acuerde...'
+    : estado === 'generacion' ? 'Creo que ya me acuerdo como era, che'
     : estado === 'error' ? error
     : estado === 'ausencia' ? ausencia
     : respuesta ? respuesta.respuesta
     : recuperacion ? 'Presioná Enter para consultar las reglas con la selección actual.'
     : juegoActivo ? `¿Qué más querés saber sobre ${juegoActivo.juego}?`
-    : '¿Una duda con las reglas? Mencioná el juego en tu pregunta y lo consultamos en los documentos.'
+    : 'Tenes alguna duda? Decime y lo vemo '
   return <div className="app-shell">
     <JuegosSidebar juegos={juegos} juegoActual={juegoDetectado?.juego ?? juegoActivo?.juego}
       cargando={umbral === null && !configError} error={Boolean(configError)} />
     <div className="page">
     <header className="header">
       <a className="brand" href="/" aria-label="Entre cartas, inicio"><span aria-hidden="true">✦</span> Entre cartas<span className="brand-dot">.</span></a>
-      <span className="header-note">REGLAS SOBRE LA MESA</span>
     </header>
     <main>
-      <div className="intro"><p className="eyebrow">UN JUEGO, UNA CONVERSACIÓN</p><h1>Que las dudas no corten<br />la partida.</h1><p>Consultá las reglas, con los documentos a mano.</p></div>
       {configError && <div className="config-error" role="alert">{configError} <button onClick={() => void cargarConfiguracion()}>Reintentar conexión</button></div>}
       <section className="conversation" aria-label="Consulta de reglas" aria-busy={ocupado}>
         <div className={`bubble ${estado === 'error' ? 'bubble-error' : ''}`}>
           <p className="bubble-label">{juegoDetectado?.juego ?? juegoActivo?.juego ?? 'EL GAUCHO DICE'}</p>
           <div role={estado === 'error' ? 'alert' : 'status'} aria-live="polite" className="answer">{mensaje}</div>
-          {respuesta && respuesta.fuentes.length > 0 && <Fuentes fuentes={respuesta.fuentes} />}
         </div>
-        <Gaucho atento={escribiendo} estado={estado} baraja={juegoDetectado?.metadatos.baraja ?? juegoActivo?.metadatos.baraja ?? 'general'} />
-        <span className="table-line" aria-hidden="true" />
+        <div className="gaucho-stage">
+          <Gaucho atento={escribiendo} estado={estado} baraja={juegoDetectado?.metadatos.baraja ?? juegoActivo?.metadatos.baraja ?? 'general'} />
+          <span className="table-line" aria-hidden="true" />
+        </div>
+        {respuesta && respuesta.fuentes.length > 0 && <div className="conversation-sources"><Fuentes fuentes={respuesta.fuentes} /></div>}
       </section>
       <div className="conversation-controls">
         <p className="helper">{juegoActivo ? `Conversando sobre ${juegoActivo.juego}. Podés seguir preguntando sin repetir su nombre.` : 'Para empezar, mencioná el juego en tu pregunta.'}</p>
         <button type="button" disabled={ocupado || (!juegoActivo && !historial.length)} onClick={nuevaConversacion}>Nueva conversación</button>
       </div>
       <form className="question-form" onSubmit={enviar}>
-        <label htmlFor="pregunta">¿Qué jugamos hoy?</label>
+        <label htmlFor="pregunta">¿Que se juega hoy?</label>
         <div className="input-row"><textarea id="pregunta" onFocus={() => setEscribiendo(true)} onBlur={() => setEscribiendo(false)} rows={2} maxLength={1000} required disabled={ocupado} enterKeyHint="send" aria-describedby="ayuda-pregunta"
           onKeyDown={event => {
             if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {

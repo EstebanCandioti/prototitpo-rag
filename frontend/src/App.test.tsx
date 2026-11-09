@@ -52,11 +52,11 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 async function preparar() {
   render(<App />)
   await screen.findByText('0.55')
-  const campo = screen.getByLabelText('¿Qué jugamos hoy?')
+  const campo = screen.getByRole('textbox')
   fireEvent.change(campo, { target: { value: 'En el Truco, ¿cómo es el envido?' } })
   return campo
 }
-function enter() { fireEvent.keyDown(screen.getByLabelText('¿Qué jugamos hoy?'), { key: 'Enter' }) }
+function enter() { fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' }) }
 async function recuperarPrueba() {
   await preparar()
   fireEvent.click(screen.getByText('Modo de pruebas'))
@@ -85,7 +85,7 @@ describe('consulta RAG', () => {
   })
   it('no envía una pregunta vacía', async () => {
     await preparar()
-    fireEvent.change(screen.getByLabelText('¿Qué jugamos hoy?'), { target: { value: '   ' } })
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '   ' } })
     enter(); expect(pedidos).toHaveLength(1)
   })
   it('el modo de pruebas conserva las etapas y el umbral cambia sin repetir embedding ni llamar al LLM', async () => {
@@ -161,10 +161,10 @@ describe('consulta RAG', () => {
       return original(ruta, opciones)
     })
     await preparar(); enter(); enter()
-    await screen.findByText('Voy a buscar las reglas en los documentos.')
+    await screen.findByText('Dejame que me acuerde...')
     expect(document.querySelector('[data-estado="busqueda"]')).toBeTruthy()
-    expect((screen.getByLabelText('¿Qué jugamos hoy?') as HTMLTextAreaElement).disabled).toBe(true)
-    completar!(); await screen.findByText('Estoy preparando tu respuesta…')
+    expect((screen.getByRole('textbox') as HTMLTextAreaElement).disabled).toBe(true)
+    completar!(); await screen.findByText('Creo que ya me acuerdo como era, che')
     expect(document.querySelector('[data-estado="generacion"][data-baraja="espanola"]')).toBeTruthy()
     enter()
     completar!(); await screen.findByText('Respuesta generada.', { selector: '.conversation .answer' })
@@ -198,7 +198,7 @@ describe('consulta RAG', () => {
   })
   it('tocar el campo activa atención sin esperar una pregunta ni una búsqueda', async () => {
     render(<App />); await screen.findByText('0.55')
-    const campo = screen.getByLabelText('¿Qué jugamos hoy?')
+    const campo = screen.getByRole('textbox')
     expect(document.querySelector('canvas')?.getAttribute('data-accion')).toBe('reposo')
     fireEvent.focus(campo)
     expect(document.querySelector('canvas')?.getAttribute('data-accion')).toBe('atencion')

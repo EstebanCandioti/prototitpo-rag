@@ -1,12 +1,12 @@
 // Clase 8: un proveedor para cada tarea.
 //   embeddings -> Ollama, en tu compu (habla como OpenAI y no pide clave)
-//   respuesta  -> PROVEEDOR_CHAT=gemini: Google AI Studio
-//                 PROVEEDOR_CHAT=openai: OpenAI o compatibles (con URL_CHAT)
+//   respuesta  -> PROVEEDOR_CHAT=openai: OpenAI o compatibles (con URL_CHAT)
+//                 PROVEEDOR_CHAT=gemini: Google AI Studio
 const {
   URL_EMBEDDINGS = "http://localhost:11434/v1",
   MODELO_EMBEDDINGS,
   DIMENSIONES,
-  PROVEEDOR_CHAT = "gemini",
+  PROVEEDOR_CHAT = "openai",
   API_KEY,
   URL_CHAT = "https://api.openai.com/v1",
   MODELO_CHAT,
@@ -77,7 +77,7 @@ export async function embedding(texto) {
 
 // La respuesta sigue saliendo de la nube, igual que en las clases 6 y 7.
 export async function responder(prompt) {
-  if (!API_KEY) throw new Error("Falta API_KEY en el .env (la clave de Google AI Studio)");
+  if (!API_KEY) throw new Error("Falta API_KEY del proveedor de chat en el entorno del backend");
   if (!MODELO_CHAT) throw new Error("Falta MODELO_CHAT en el .env");
   if (PROVEEDOR_CHAT === "gemini") {
     const datos = await pedir(

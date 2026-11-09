@@ -10,6 +10,8 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
   const canvas = useRef<HTMLCanvasElement>(null)
   const mazo = useRef<Baraja>('espanola')
   const poseAtenta = useRef(false)
+  const cuadroAtencion = useRef(0)
+  const salidaAtencion = useRef<{ cuadros: number[]; paso: number } | null>(null)
   const tieneDibujo = useRef(false)
   const respuestaReproducida = useRef(false)
   const cambioEnCurso = useRef<{ destino: Baraja; paso: number } | null>(null)
@@ -51,6 +53,7 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
       const imagen = mazo.current === 'inglesa-francesa' && tipo !== 'mazo'
         ? recursos!.azules[tipo]! : recursos!.originales[tipo]
       tieneDibujo.current = true
+      if (tipo === 'atencion') cuadroAtencion.current = cuadro
       ctx.clearRect(0, 0, 640, 724)
       ctx.drawImage(imagen, cuadro * 640, 0, 640, 724, 0, 0, 640, 724)
     }
@@ -61,7 +64,27 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
         if (tiempos[i] > 0) await esperar(tiempos[i])
       }
     }
+    async function volverConcentrado() {
+      if (!poseAtenta.current && !salidaAtencion.current) return true
+      if (!salidaAtencion.current) {
+        const desde = cuadroAtencion.current
+        salidaAtencion.current = { cuadros: Array.from({ length: desde + 1 }, (_, i) => desde - i), paso: 0 }
+      }
+      if (reducido) dibujar('atencion', 0)
+      else while (activo && salidaAtencion.current.paso < salidaAtencion.current.cuadros.length) {
+        dibujar('atencion', salidaAtencion.current.cuadros[salidaAtencion.current.paso])
+        await esperar(1000 / secuencias.atencion.animations.volver_concentrado.frames.length)
+        if (activo) salidaAtencion.current.paso++
+      }
+      if (!activo) return false
+      salidaAtencion.current = null
+      poseAtenta.current = false
+      return true
+    }
     async function ejecutar() {
+      // Al enviar o perder el foco, terminar la salida de atención antes de otra animación.
+      // Si el RAG avanza de estado durante la salida, continuar desde el mismo cuadro.
+      if (accion !== 'atencion' && !await volverConcentrado()) return
       // Mientras se identifica el nombre, conservar la pose: todavía no pensar.
       if (accion === 'identificando') {
         if (!tieneDibujo.current) dibujar('atencion', 0)
@@ -87,14 +110,7 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
         if (reducido) { dibujar('pensando', 0); return }
         while (activo) await reproducir('pensando', secuencias.pensando.frames.map(f => f.index), secuencias.pensando.frames.map(f => f.duration_ms))
       } else if (accion === 'respuesta') {
-        const estabaAtento = poseAtenta.current
-        poseAtenta.current = false
         if (respuestaReproducida.current) {
-          // Si se tocó el campo después del cierre, conservar también la salida de atención de 1 s.
-          if (estabaAtento) {
-            const salida = secuencias.atencion.animations.volver_concentrado
-            await reproducir('atencion', salida.frames, salida.frames.map(() => 1000 / salida.frames.length))
-          }
           dibujar('respuesta', respuestaSombrero.sequence.at(-1)!)
           return
         }
@@ -105,17 +121,13 @@ export function GauchoSprites({ estado, baraja, atento, onError }: {
         poseAtenta.current = false; dibujar('atencion', 3)
       } else if (accion === 'atencion') {
         if (poseAtenta.current) { dibujar('atencion', 3); return }
+        salidaAtencion.current = null
         poseAtenta.current = true
         // Duración solicitada: 1000 ms en total. Se sostiene la última pose.
         const entrada = secuencias.atencion.animations.entrar_atento.frames
         await reproducir('atencion', entrada, entrada.map(() => 1000 / entrada.length))
       } else {
-        const estabaAtento = poseAtenta.current
-        poseAtenta.current = false
-        if (estabaAtento) {
-          const salida = secuencias.atencion.animations.volver_concentrado
-          await reproducir('atencion', salida.frames, salida.frames.map(() => 1000 / salida.frames.length))
-        } else dibujar('atencion', 0)
+        dibujar('atencion', 0)
       }
     }
     void ejecutar().catch(() => { if (activo) onError() })

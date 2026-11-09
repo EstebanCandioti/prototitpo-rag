@@ -89,7 +89,7 @@ async function prepararIndice() {
       console.log(`Índice de demostración listo: ${cantidad[0].total} fragmentos. Se reutilizan los embeddings.`);
       return;
     }
-    console.log('Preparando el índice del Codespace con Ollama. No se hacen llamadas a Gemini.');
+    console.log('Preparando el índice del Codespace con Ollama. No se hacen llamadas al proveedor de chat.');
     await ejecutar(process.execPath, ['indexar.mjs']);
     const { rows } = await pool.query('SELECT COUNT(*)::int AS total FROM fragmentos');
     if (!rows[0].total) throw new Error('La indexación terminó sin fragmentos.');
@@ -104,7 +104,7 @@ async function verificar() {
   const { db } = await import('../db.mjs');
   const { construirPlanContexto, seleccionarContexto } = await import('../seleccionar-contexto.mjs');
   try {
-    console.log(`Clave de Gemini: ${process.env.API_KEY ? 'configurada' : 'falta configurar el secreto API_KEY'}.`);
+    console.log(`Clave de chat: ${process.env.API_KEY ? 'configurada' : 'falta configurar el secreto API_KEY'}.`);
     for (const [pregunta, juego] of [['¿Cuántos puntos vale cantar truco en El Truco?', 'El Truco'], ['¿Qué combinaciones de cartas existen en Poker?', 'Poker']]) {
       const inicio = performance.now();
       const vector = await embedding(pregunta);
@@ -115,7 +115,7 @@ async function verificar() {
       console.log(JSON.stringify({ pregunta, dimensiones: vector.length, candidatos: resultados.map(f => ({ id: f.id, similitud: f.similitud, seccion: f.seccion })), idsSeleccionados: seleccion.ids, milisegundos: Math.round(performance.now() - inicio) }));
       if (!seleccion.ids.length) throw new Error('La prueba no obtuvo contexto sobre el corte 0.55. Revisá el diagnóstico antes de presentar.');
     }
-    console.log('PostgreSQL, pgvector, Ollama y recuperación comprobados. Esta verificación no invoca Gemini.');
+    console.log('PostgreSQL, pgvector, Ollama y recuperación comprobados. Esta verificación no invoca el proveedor de chat.');
   } finally { await db.end(); }
 }
 
@@ -137,8 +137,8 @@ async function main() {
     const { embedding } = await import('../api.mjs');
     const inicio = performance.now();
     await embedding('¿Qué reglas del juego querés consultar?');
-    console.log(`Modelo listo en ${Math.round(performance.now() - inicio)} ms. No se invocó Gemini.`);
-    if (!process.env.API_KEY) console.log('Falta el secreto API_KEY: la búsqueda funciona, pero Gemini necesita su clave para responder.');
+    console.log(`Modelo listo en ${Math.round(performance.now() - inicio)} ms. No se invocó el proveedor de chat.`);
+    if (!process.env.API_KEY) console.log('Falta el secreto API_KEY: la búsqueda funciona, pero el proveedor de chat necesita su clave para responder.');
     await ejecutar(process.execPath, ['servidor-web.mjs']);
   } else if (accion === 'verificar') await verificar();
   else throw new Error('Usá preparar, iniciar o verificar.');

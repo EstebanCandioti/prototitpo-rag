@@ -10,8 +10,9 @@ services:
       URL_EMBEDDINGS: http://ollama:11434/v1
       MODELO_EMBEDDINGS: bge-m3
       DIMENSIONES: "1024"
-      PROVEEDOR_CHAT: gemini
-      MODELO_CHAT: gemini-3.5-flash-lite
+      PROVEEDOR_CHAT: openai
+      URL_CHAT: https://api.openai.com/v1
+      MODELO_CHAT: gpt-6-luna
       UMBRAL: "0.55"
       PUERTO_WEB: "3000"
     depends_on:

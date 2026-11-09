@@ -1,13 +1,13 @@
 # Probar Entre cartas en GitHub Codespaces
 
-Esta configuración ejecuta el backend y React junto a PostgreSQL/pgvector y Ollama con `bge-m3` en la máquina de GitHub. Gemini sigue generando las respuestas. La base de trabajo de Windows y su `.env` no se utilizan en la prueba.
+Esta configuración ejecuta el backend y React junto a PostgreSQL/pgvector y Ollama con `bge-m3` en la máquina de GitHub. OpenAI (`gpt-6-luna`) genera las respuestas. La base de trabajo de Windows y su `.env` no se utilizan en la prueba.
 
 ## Primera creación
 
 1. Subí esta versión al repositorio. El repositorio elegido para la prueba es [EstebanCandioti/prototitpo-rag](https://github.com/EstebanCandioti/prototitpo-rag).
-2. En [Settings → Codespaces → Secrets](https://github.com/settings/codespaces), agregá `API_KEY` con tu clave de Gemini y dale acceso únicamente a ese repositorio. Nunca pegues la clave en un archivo versionado ni en el chat. GitHub también puede solicitar este secreto al crear el entorno.
+2. En [Settings → Codespaces → Secrets](https://github.com/settings/codespaces), agregá `API_KEY` con tu clave de OpenAI y dale acceso únicamente a ese repositorio. Si ya existía una clave de Gemini con ese nombre, reemplazala. Para aplicar la nueva configuración de `.devcontainer/compose.yaml` en un Codespace existente, ejecutá «Codespaces: Rebuild Container». Nunca pegues la clave en un archivo versionado ni en el chat. GitHub también puede solicitar este secreto al crear el entorno.
 3. Abrí [Crear Codespace](https://codespaces.new/EstebanCandioti/prototitpo-rag), elegí la rama `main` y una máquina de **2 núcleos / 8 GB**. Revisá tu cuota gratuita disponible antes de crearlo. Se configura un puerto privado para la prueba.
-4. Esperá la preparación inicial. El script instala dependencias, compila React, descarga `bge-m3` en GitHub y genera el índice de la base nueva `rag_demo`. La descarga y el trabajo de CPU ocurren en el Codespace, no en la PC de la facultad. Este proceso no llama a Gemini.
+4. Esperá la preparación inicial. El script instala dependencias, compila React, descarga `bge-m3` en GitHub y genera el índice de la base nueva `rag_demo`. La descarga y el trabajo de CPU ocurren en el Codespace, no en la PC de la facultad. Este proceso no llama a OpenAI.
 5. En la terminal del Codespace ejecutá:
 
 ```bash
@@ -22,8 +22,8 @@ Probá «¿Cuánto vale cantar truco en El Truco?», «¿Qué combinaciones exis
 ## Qué hace cada comando
 
 - `npm run codespaces:preparar`: instalación y build, descarga del modelo si falta e indexación de la base de demo si falta o cambió su firma. Se ejecuta automáticamente al crear el entorno.
-- `npm run codespaces:verificar`: usa Ollama y PostgreSQL reales para buscar Truco y Poker; muestra dimensiones, puntajes, IDs seleccionados y tiempo. No consume llamadas a Gemini.
-- `npm run codespaces:iniciar`: comprueba el índice, carga el modelo en memoria y arranca el servidor de React y la API. Reutiliza el modelo descargado y los vectores cuando no cambió el corpus, el troceado ni el modelo. Al reanudar el Codespace, esperá a que aparezca la URL: cargar el modelo en frío puede demorar alrededor de un minuto en la máquina de 2 núcleos, sin consumir llamadas a Gemini.
+- `npm run codespaces:verificar`: usa Ollama y PostgreSQL reales para buscar Truco y Poker; muestra dimensiones, puntajes, IDs seleccionados y tiempo. No consume llamadas a OpenAI.
+- `npm run codespaces:iniciar`: comprueba el índice, carga el modelo en memoria y arranca el servidor de React y la API. Reutiliza el modelo descargado y los vectores cuando no cambió el corpus, el troceado ni el modelo. Al reanudar el Codespace, esperá a que aparezca la URL: cargar el modelo en frío puede demorar alrededor de un minuto en la máquina de 2 núcleos, sin consumir llamadas a OpenAI.
 
 La firma incluye el corpus, el código de indexación/troceado, el modelo y su digest de Ollama. El índice se reemplaza usando el programa original de consola, que prepara todos los embeddings antes de comenzar la transacción de reemplazo.
 
@@ -47,7 +47,7 @@ Al reanudar, abrí la terminal y ejecutá nuevamente `npm run codespaces:iniciar
 - **401 al abrir el enlace `app.github.dev`:** pertenece al acceso privado de GitHub. Se puede acceder desde VS Code conectado al Codespace mediante el puerto local reenviado (por ejemplo, `http://127.0.0.1:3001/`). Ese enlace funciona en la PC conectada y mientras VS Code mantenga el túnel. Usá el puerto que indique Ports y mantené su visibilidad privada.
 - **Sin cuota o permisos para Codespaces:** GitHub debe habilitar el entorno en tu cuenta. La CLI requiere el permiso `codespace`; crear y abrir el entorno desde el navegador también es posible.
 
-## Prueba real del 4 de noviembre de 2026
+## Prueba real del 4 de noviembre de 2026 (configuración anterior con Gemini)
 
 Se comprobó el funcionamiento en un Codespace de 2 núcleos y 8 GB: build de React, 27 juegos, PostgreSQL/pgvector con 305 fragmentos, embeddings de Ollama y respuestas reales de Gemini. Se verificaron el origen HTTPS permitido, el rechazo de un origen ajeno, el cambio local de umbral, la abstención sin invocar al LLM cuando no hay selección y el envío/citado de los IDs seleccionados del mismo juego.
 

@@ -75,3 +75,14 @@
 .debug-badge{font-size:10px;color:var(--green);margin:4px 0}.debug-outcome{font-weight:600;color:var(--green)}
 .source-part{margin:10px 0}.source-part>summary{font-weight:400;font-size:11px}.history-debug{margin:16px 0}.history-debug>summary{cursor:pointer;color:var(--green);font-size:12px}
 @media(max-width:600px){.debug-fields{grid-template-columns:1fr;gap:2px}.debug-fields dd{margin-bottom:9px}.debug-group>summary{align-items:flex-start}.debug-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.debug-metrics dd{font-size:16px}}
+
+/* Las fuentes quedan aparte y el pico vuelve a apuntar al centro del gaucho. */
+.conversation{padding-top:34px}
+.bubble::after{left:calc(50% - 12px);bottom:-16px;width:24px;height:24px}
+.gaucho-stage{position:relative}
+.gaucho-stage .gaucho{margin-top:12px}
+.conversation-sources{max-width:700px;margin:0 auto 12px}
+.conversation-sources .fuentes{margin:0;padding:15px 20px;border:1px solid var(--line);border-radius:12px;background:#fffaf0b8}
+@media(max-width:600px){
+  .conversation{padding-top:23px}
+}

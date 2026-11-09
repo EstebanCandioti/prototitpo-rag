@@ -1,0 +1,575 @@
+{
+  "fechaTarifas": "2026-11-08",
+  "modelo": "gpt-6-luna",
+  "tarifas": {
+    "fecha": "2026-11-08",
+    "moneda": "USD",
+    "entradaPorMillon": 0.1,
+    "salidaPorMillon": 0.5,
+    "entradaCachePorMillon": 0.01,
+    "escrituraCachePorMillon": 0.125,
+    "fuente": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  },
+  "alcance": "Consumo real de generación con candidatos reproducidos del corpus. No mide ranking SQL. Una muestra por caso.",
+  "excluye": [
+    "Electricidad y hardware de Ollama",
+    "PostgreSQL y alojamiento",
+    "Impuestos y conversión de moneda",
+    "Indexación y embeddings remotos"
+  ],
+  "casos": [
+    {
+      "tipo": "Puntual: definición de full",
+      "pregunta": "¿Qué es un full en Poker?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 2739,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 616,
+            "completion_tokens": 40,
+            "total_tokens": 656,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 616,
+          "tokensSalida": 40,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 0,
+          "costoSinCacheUsd": 0.00008159999999999999,
+          "costoEstimadoUsd": 0.00008159999999999999,
+          "respuesta": "Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí. Gana el full con el trío mayor; no puede haber empate.\n\nFuente: [170]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        170
+      ],
+      "caracteresContexto": 281,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Qué es un full en Poker?",
+      "respuesta": "Es la combinación de tres cartas del mismo valor con otras dos cartas iguales entre sí. Gana el full con el trío mayor; no puede haber empate.",
+      "costoSinCacheUsd": 0.00008159999999999999,
+      "costoEstimadoUsd": 0.00008159999999999999,
+      "porMilConsultasUsd": 0.08159999999999999
+    },
+    {
+      "tipo": "Puntual: puntos del truco",
+      "pregunta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5137,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 1205,
+            "completion_tokens": 88,
+            "total_tokens": 1293,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1202,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 59,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 1205,
+          "tokensSalida": 88,
+          "tokensRazonamiento": 59,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 1202,
+          "costoSinCacheUsd": 0.0001645,
+          "costoEstimadoUsd": 0.00019455,
+          "respuesta": "Cantar truco aumenta su valor a 2 puntos.\n\nFuente: [290, 291]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        290,
+        291
+      ],
+      "caracteresContexto": 2658,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "Cantar truco aumenta su valor a 2 puntos.",
+      "costoSinCacheUsd": 0.0001645,
+      "costoEstimadoUsd": 0.00019455,
+      "porMilConsultasUsd": 0.19455
+    },
+    {
+      "tipo": "Listado: combinaciones de Poker",
+      "pregunta": "¿Cuáles son las combinaciones de cartas posibles en Poker?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 6810,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 1651,
+            "completion_tokens": 256,
+            "total_tokens": 1907,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1648,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 82,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 1651,
+          "tokensSalida": 256,
+          "tokensRazonamiento": 82,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 1648,
+          "costoSinCacheUsd": 0.0002931,
+          "costoEstimadoUsd": 0.0003343,
+          "respuesta": "Repoker: cinco cartas del mismo valor, una de ellas necesariamente el comodín.\nEscalera de Color: cinco cartas del mismo palo y de valor correlativo.\nPoker: cuatro cartas del mismo valor.\nFull: un trío y una pareja.\nColor: cinco cartas del mismo palo, sin ser correlativas.\nEscalera: cinco cartas de valor correlativo, sin ser todas del mismo palo.\nTrío: tres cartas del mismo valor y dos que no formen pareja.\nDobles parejas: dos parejas de distinto valor.\nPareja: dos cartas iguales y tres cartas sueltas.\nCarta Mayor: cuando no se forma ninguna de las combinaciones anteriores.\n\nFuente: [167], [168], [169], [170], [171], [172], [173], [174], [175], [176]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "caracteresContexto": 4319,
+      "alcance": "lista",
+      "consultaEmbedding": "¿Cuáles son las combinaciones de cartas posibles en Poker?",
+      "respuesta": "Repoker: cinco cartas del mismo valor, una de ellas necesariamente el comodín.\nEscalera de Color: cinco cartas del mismo palo y de valor correlativo.\nPoker: cuatro cartas del mismo valor.\nFull: un trío y una pareja.\nColor: cinco cartas del mismo palo, sin ser correlativas.\nEscalera: cinco cartas de valor correlativo, sin ser todas del mismo palo.\nTrío: tres cartas del mismo valor y dos que no formen pareja.\nDobles parejas: dos parejas de distinto valor.\nPareja: dos cartas iguales y tres cartas sueltas.\nCarta Mayor: cuando no se forma ninguna de las combinaciones anteriores.",
+      "costoSinCacheUsd": 0.0002931,
+      "costoEstimadoUsd": 0.0003343,
+      "porMilConsultasUsd": 0.3343
+    },
+    {
+      "tipo": "Comparación: full o color",
+      "pregunta": "¿Qué gana en Poker, full o color?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 6785,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 1648,
+            "completion_tokens": 123,
+            "total_tokens": 1771,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1645,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 85,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 1648,
+          "tokensSalida": 123,
+          "tokensRazonamiento": 85,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 1645,
+          "costoSinCacheUsd": 0.0002263,
+          "costoEstimadoUsd": 0.000267425,
+          "respuesta": "Gana el full: está por encima del color en el orden de mayor a menor.\n\nFuente: [166], [170], [171]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176
+      ],
+      "caracteresContexto": 4319,
+      "alcance": "comparacion",
+      "consultaEmbedding": "¿Qué gana en Poker, full o color?",
+      "respuesta": "Gana el full: está por encima del color en el orden de mayor a menor.",
+      "costoSinCacheUsd": 0.0002263,
+      "costoEstimadoUsd": 0.000267425,
+      "porMilConsultasUsd": 0.267425
+    },
+    {
+      "tipo": "Procedimiento: calcular el envido",
+      "pregunta": "¿Cómo se calcula el envido en El Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5100,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 1179,
+            "completion_tokens": 171,
+            "total_tokens": 1350,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1176,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 95,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 1179,
+          "tokensSalida": 171,
+          "tokensRazonamiento": 95,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 1176,
+          "costoSinCacheUsd": 0.0002034,
+          "costoEstimadoUsd": 0.00023280000000000002,
+          "respuesta": "Si tenés dos cartas del mismo palo, sumás sus índices y agregás 20 tantos. Si las tres son de palos distintos, cuenta el valor de la carta más alta. El envido ganador es el de mayor valor; en caso de empate, gana quien lo canta primero.\n\nFuente: [288, 289]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        288,
+        289
+      ],
+      "caracteresContexto": 2628,
+      "alcance": "procedimiento",
+      "consultaEmbedding": "¿Cómo se calcula el envido en El Truco?",
+      "respuesta": "Si tenés dos cartas del mismo palo, sumás sus índices y agregás 20 tantos. Si las tres son de palos distintos, cuenta el valor de la carta más alta. El envido ganador es el de mayor valor; en caso de empate, gana quien lo canta primero.",
+      "costoSinCacheUsd": 0.0002034,
+      "costoEstimadoUsd": 0.00023280000000000002,
+      "porMilConsultasUsd": 0.2328
+    },
+    {
+      "tipo": "General: reglas de Texas",
+      "pregunta": "¿Cómo se juega al Texas Holdem?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 10524,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 2474,
+            "completion_tokens": 789,
+            "total_tokens": 3263,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 2471,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 492,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 2474,
+          "tokensSalida": 789,
+          "tokensRazonamiento": 492,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 2471,
+          "costoSinCacheUsd": 0.0006418999999999999,
+          "costoEstimadoUsd": 0.000703675,
+          "respuesta": "Objetivo: formar la mejor jugada con las dos cartas propias y las cinco comunitarias para ganar el bote.\n\nPreparación: se usa una baraja inglesa de 52 cartas y pueden jugar de dos a siete personas. Los dos jugadores a la izquierda del repartidor ponen las ciegas; luego cada jugador recibe dos cartas boca abajo.\n\nDesarrollo:\n1. Empieza una ronda de apuestas. Los jugadores pueden retirarse, igualar o subir, según corresponda.\n2. Se muestran tres cartas comunitarias (Flop) y hay otra ronda de apuestas.\n3. Se muestra la cuarta carta comunitaria (Turn) y se apuesta de nuevo.\n4. Se muestra la quinta carta comunitaria (River) y se realiza la última ronda de apuestas.\n5. Quienes siguen en la mano comparan sus jugadas. Se pueden usar una, dos o ninguna de las cartas propias; gana la combinación superior y se lleva el bote. Si una apuesta no es igualada, quien la hizo gana la mano automáticamente.\n6. En la siguiente mano, el turno de repartidor pasa al jugador de la izquierda.\n\nEn la modalidad con límite, las apuestas de las dos primeras rondas son menores que las de las dos siguientes; las modalidades sin límite y Pot-limit tienen límites de apuesta diferentes.\n\nFuente: [229], [230], [231], [233, 234, 235], [236], [237]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237
+      ],
+      "caracteresContexto": 8060,
+      "alcance": "general",
+      "consultaEmbedding": "¿Cómo se juega al Texas Holdem?",
+      "respuesta": "Objetivo: formar la mejor jugada con las dos cartas propias y las cinco comunitarias para ganar el bote.\n\nPreparación: se usa una baraja inglesa de 52 cartas y pueden jugar de dos a siete personas. Los dos jugadores a la izquierda del repartidor ponen las ciegas; luego cada jugador recibe dos cartas boca abajo.\n\nDesarrollo:\n1. Empieza una ronda de apuestas. Los jugadores pueden retirarse, igualar o subir, según corresponda.\n2. Se muestran tres cartas comunitarias (Flop) y hay otra ronda de apuestas.\n3. Se muestra la cuarta carta comunitaria (Turn) y se apuesta de nuevo.\n4. Se muestra la quinta carta comunitaria (River) y se realiza la última ronda de apuestas.\n5. Quienes siguen en la mano comparan sus jugadas. Se pueden usar una, dos o ninguna de las cartas propias; gana la combinación superior y se lleva el bote. Si una apuesta no es igualada, quien la hizo gana la mano automáticamente.\n6. En la siguiente mano, el turno de repartidor pasa al jugador de la izquierda.\n\nEn la modalidad con límite, las apuestas de las dos primeras rondas son menores que las de las dos siguientes; las modalidades sin límite y Pot-limit tienen límites de apuesta diferentes.",
+      "costoSinCacheUsd": 0.0006418999999999999,
+      "costoEstimadoUsd": 0.000703675,
+      "porMilConsultasUsd": 0.7036749999999999
+    },
+    {
+      "tipo": "General: reglas de Truco",
+      "pregunta": "¿Cómo se juega al Truco?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 21049,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 5047,
+            "completion_tokens": 884,
+            "total_tokens": 5931,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 5044,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 392,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 5047,
+          "tokensSalida": 884,
+          "tokensRazonamiento": 392,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 5044,
+          "costoSinCacheUsd": 0.0009467000000000001,
+          "costoEstimadoUsd": 0.0010728,
+          "respuesta": "1. Objetivo: sumar 30 tantos —15 malos y 15 buenos— para ganar un chico. La partida se gana al conseguir dos chicos.\n\n2. Preparación: se usa una baraja española de 40 cartas y pueden jugar de 2 a 8 personas; lo más corriente es jugar cuatro, en dos parejas. Se reparten tres cartas a cada jugador. El turno de dar rota en sentido contrario a las agujas del reloj; empieza el jugador a la derecha del dador, llamado mano.\n\n3. Desarrollo: antes de jugar cartas, durante la primera baza, se pueden declarar flor y envido; el truco puede cantarse en cualquier momento. Una vez jugada la primera carta, ya no se puede cantar flor ni iniciar una apuesta de envido. La flor se tiene con tres cartas del mismo palo. El envido se calcula con dos cartas del mismo palo: se suman sus valores y 20; si no hay dos del mismo palo, vale la carta más alta.\n\n4. Apuestas: en el envido se puede cantar envido, real envido o falta envido. Si se acepta, gana quien tenga el valor más alto; en caso de empate, tiene prioridad quien lo cantó primero. La flor se anuncia diciendo “flor” y su valor es la suma de las cartas más 20. Las reglas de flor pueden variar y muchos jugadores prefieren no incluirla.\n\n5. Truco: se juegan hasta tres bazas, una carta por jugador en cada una; gana cada baza la carta de mayor rango. Para ganar el truco hay que ganar dos bazas. Sin apuestas, vale 1 punto; al cantar truco y aceptarlo vale 2, retruco vale 3 y vale cuatro vale 4. Rechazar una apuesta concede al contrario los tantos indicados para ese rechazo.\n\n6. Orden de las cartas, de mayor a menor: as de espadas, as de bastos, siete de espadas, siete de oros, treses, doses, ases falsos, cartas negras, sietes falsos, seises, cincos y cuatros.\n\nFuente: [277], [278], [279, 280], [282], [281], [283], [284], [286, 287], [288, 289], [290, 291]",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        276,
+        277,
+        278,
+        279,
+        280,
+        282,
+        281,
+        283,
+        284,
+        285,
+        286,
+        287,
+        290,
+        291,
+        288,
+        289,
+        292,
+        293
+      ],
+      "caracteresContexto": 18592,
+      "alcance": "general",
+      "consultaEmbedding": "¿Cómo se juega al Truco?",
+      "respuesta": "1. Objetivo: sumar 30 tantos —15 malos y 15 buenos— para ganar un chico. La partida se gana al conseguir dos chicos.\n\n2. Preparación: se usa una baraja española de 40 cartas y pueden jugar de 2 a 8 personas; lo más corriente es jugar cuatro, en dos parejas. Se reparten tres cartas a cada jugador. El turno de dar rota en sentido contrario a las agujas del reloj; empieza el jugador a la derecha del dador, llamado mano.\n\n3. Desarrollo: antes de jugar cartas, durante la primera baza, se pueden declarar flor y envido; el truco puede cantarse en cualquier momento. Una vez jugada la primera carta, ya no se puede cantar flor ni iniciar una apuesta de envido. La flor se tiene con tres cartas del mismo palo. El envido se calcula con dos cartas del mismo palo: se suman sus valores y 20; si no hay dos del mismo palo, vale la carta más alta.\n\n4. Apuestas: en el envido se puede cantar envido, real envido o falta envido. Si se acepta, gana quien tenga el valor más alto; en caso de empate, tiene prioridad quien lo cantó primero. La flor se anuncia diciendo “flor” y su valor es la suma de las cartas más 20. Las reglas de flor pueden variar y muchos jugadores prefieren no incluirla.\n\n5. Truco: se juegan hasta tres bazas, una carta por jugador en cada una; gana cada baza la carta de mayor rango. Para ganar el truco hay que ganar dos bazas. Sin apuestas, vale 1 punto; al cantar truco y aceptarlo vale 2, retruco vale 3 y vale cuatro vale 4. Rechazar una apuesta concede al contrario los tantos indicados para ese rechazo.\n\n6. Orden de las cartas, de mayor a menor: as de espadas, as de bastos, siete de espadas, siete de oros, treses, doses, ases falsos, cartas negras, sietes falsos, seises, cincos y cuatros.",
+      "costoSinCacheUsd": 0.0009467000000000001,
+      "costoEstimadoUsd": 0.0010728,
+      "porMilConsultasUsd": 1.0728
+    },
+    {
+      "tipo": "Abstención del modelo: combinaciones de Texas",
+      "pregunta": "¿Qué combinaciones de cartas existen en Texas Holdem?",
+      "llamadas": [
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 3112,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 720,
+            "completion_tokens": 45,
+            "total_tokens": 765,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 720,
+          "tokensSalida": 45,
+          "tokensRazonamiento": 0,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 0,
+          "costoSinCacheUsd": 0.0000945,
+          "costoEstimadoUsd": 0.0000945,
+          "respuesta": "No lo encuentro en los documentos.\n\nFuente: — [229] Texas Hold’em · Objetivo del juego · https://www.nhfournier.es/como-jugar/texas-holdem/ —",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        229,
+        232
+      ],
+      "caracteresContexto": 626,
+      "alcance": "lista",
+      "consultaEmbedding": "¿Qué combinaciones de cartas existen en Texas Holdem?",
+      "respuesta": "No lo encuentro en los documentos.",
+      "costoSinCacheUsd": 0.0000945,
+      "costoEstimadoUsd": 0.0000945,
+      "porMilConsultasUsd": 0.0945
+    },
+    {
+      "tipo": "Seguimiento: ¿y cuánto vale?",
+      "pregunta": "¿Y cuánto vale?",
+      "llamadas": [
+        {
+          "tarea": "interpretacion",
+          "caracteresPrompt": 1497,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 356,
+            "completion_tokens": 64,
+            "total_tokens": 420,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 36,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 356,
+          "tokensSalida": 64,
+          "tokensRazonamiento": 36,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 0,
+          "costoSinCacheUsd": 0.00006759999999999999,
+          "costoEstimadoUsd": 0.00006759999999999999,
+          "respuesta": "{\"pregunta\":\"¿Cuántos puntos vale cantar truco en El Truco?\"}",
+          "fin": "stop"
+        },
+        {
+          "tarea": "respuesta",
+          "caracteresPrompt": 5103,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 1200,
+            "completion_tokens": 170,
+            "total_tokens": 1370,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1197,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 116,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 1200,
+          "tokensSalida": 170,
+          "tokensRazonamiento": 116,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 1197,
+          "costoSinCacheUsd": 0.000205,
+          "costoEstimadoUsd": 0.000234925,
+          "respuesta": "Al aceptarse, cantar truco aumenta su valor a 2 puntos.\nFuente: [290, 291] El Truco · Truco · https://www.nhfournier.es/como-jugar/truco/",
+          "fin": "stop"
+        }
+      ],
+      "ids": [
+        290,
+        291
+      ],
+      "caracteresContexto": 2658,
+      "preguntaResuelta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "Al aceptarse, cantar truco aumenta su valor a 2 puntos.",
+      "costoSinCacheUsd": 0.0002726,
+      "costoEstimadoUsd": 0.000302525,
+      "porMilConsultasUsd": 0.302525
+    },
+    {
+      "tipo": "Sin candidatos aceptados: primera pregunta",
+      "pregunta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "llamadas": [],
+      "ids": [],
+      "caracteresContexto": 0,
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "No lo encuentro en los documentos",
+      "costoSinCacheUsd": 0,
+      "costoEstimadoUsd": 0,
+      "porMilConsultasUsd": 0
+    },
+    {
+      "tipo": "Sin candidatos aceptados: seguimiento",
+      "pregunta": "¿Y cuánto vale?",
+      "llamadas": [
+        {
+          "tarea": "interpretacion",
+          "caracteresPrompt": 1497,
+          "modeloDevuelto": "gpt-6-luna",
+          "uso": {
+            "prompt_tokens": 356,
+            "completion_tokens": 67,
+            "total_tokens": 423,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 39,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "tokensEntrada": 356,
+          "tokensSalida": 67,
+          "tokensRazonamiento": 39,
+          "tokensCache": 0,
+          "tokensEscrituraCache": 0,
+          "costoSinCacheUsd": 0.0000691,
+          "costoEstimadoUsd": 0.0000691,
+          "respuesta": "{\"pregunta\":\"¿Cuántos puntos vale cantar truco en El Truco?\"}",
+          "fin": "stop"
+        }
+      ],
+      "ids": [],
+      "caracteresContexto": 0,
+      "preguntaResuelta": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "alcance": "puntual",
+      "consultaEmbedding": "¿Cuántos puntos vale cantar truco en El Truco?",
+      "respuesta": "No lo encuentro en los documentos",
+      "costoSinCacheUsd": 0.0000691,
+      "costoEstimadoUsd": 0.0000691,
+      "porMilConsultasUsd": 0.0691
+    }
+  ]
+}
