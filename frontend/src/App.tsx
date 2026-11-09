@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { api } from './api'
+import { api, consultarPublica } from './api'
 import { Gaucho } from './Gaucho'
 import { JuegosSidebar } from './JuegosSidebar'
 import { DepuracionConsulta } from './DepuracionConsulta'
@@ -39,11 +39,14 @@ function Historial({ turnos }: { turnos: TurnoConversacion[] }) {
           contexto={turno.informe.contexto} respuesta={turno.respuesta} estado={turno.respuesta.sinRespuesta ? 'ausencia' : 'respuesta'} umbral={turno.informe.umbral} modo={turno.informe.modo} />
       </details>}
     </li>)}</ol>}
-    <p className="helper">Se muestran hasta 10 intercambios. El modelo recibe solo el último intercambio anterior.</p>
+    <p className="helper">Se muestran hasta 10 intercambios. El servidor usa solo el último intercambio anterior en el flujo normal.</p>
   </details>
 }
 export default function App() {
   const enCurso = useRef(false)
+  const solicitudPublica = useRef<{ clave: string; datos: { pregunta: string; consultaAnteriorId?: string } } | null>(null)
+  const [diagnosticos, setDiagnosticos] = useState(false)
+  const [evaluacion, setEvaluacion] = useState(false)
   const [escribiendo, setEscribiendo] = useState(false)
   const [pregunta, setPregunta] = useState('')
   const [k, setK] = useState(8)
@@ -65,12 +68,13 @@ export default function App() {
   async function cargarConfiguracion() {
     setConfigError('')
     try {
-      const datos = await api<{ juegos: string[]; umbralInicial: number }>('juegos')
-      setJuegos(datos.juegos); setUmbral(datos.umbralInicial)
+      const datos = await api<{ juegos: string[]; umbralInicial: number; diagnosticosHabilitados?: boolean }>('juegos')
+      setJuegos(datos.juegos); setUmbral(datos.umbralInicial); setDiagnosticos(datos.diagnosticosHabilitados === true)
     } catch (e) { setConfigError((e as Error).message) }
   }
   useEffect(() => { void cargarConfiguracion() }, [])
   function invalidar(conservarReformulacion = false) {
+    solicitudPublica.current = null
     setJuegoDetectado(null); setRecuperacion(null); setContextoRecuperacion(undefined); setRespuesta(null); setError(''); setEstado('reposo')
     if (!conservarReformulacion) setReformulacion(null)
   }
@@ -79,6 +83,39 @@ export default function App() {
     invalidar(); setPregunta(''); setJuegoActivo(null); setHistorial([]); setEscribiendo(false)
   }
   async function consultar(soloRecuperar = false) {
+    if (evaluacion || soloRecuperar) return consultarDiagnostico(soloRecuperar)
+    if (enCurso.current || umbral === null || !pregunta.trim()) return
+    enCurso.current = true
+    setEscribiendo(false); setError(''); setRespuesta(null); setRecuperacion(null); setEstado('deteccion')
+    const preguntaActual = pregunta.trim()
+    if (!solicitudPublica.current) {
+      const anterior = historial.at(-1)?.consultaId
+      solicitudPublica.current = { clave: crypto.randomUUID(), datos: { pregunta: preguntaActual,
+        ...(anterior ? { consultaAnteriorId: anterior } : {}) } }
+    }
+    try {
+      const solicitud = solicitudPublica.current
+      const resultado = await consultarPublica(solicitud.datos, solicitud.clave, evento => {
+        if (evento.tipo === 'juego') {
+          const juego = { juego: evento.juego, metadatos: { baraja: evento.baraja, nota: 'Clasificación revisada en el corpus.' } }
+          setJuegoDetectado(juego); setJuegoActivo(juego)
+          setEstado('busqueda')
+        } else if (evento.tipo === 'etapa') setEstado(evento.estado)
+      })
+      const juego = { juego: resultado.juego, metadatos: { baraja: resultado.baraja, nota: 'Clasificación revisada en el corpus.' } }
+      setJuegoDetectado(juego); setJuegoActivo(juego)
+      const verificada: Respuesta = { respuesta: resultado.respuesta, sinRespuesta: resultado.estado === 'abstencion',
+        modeloInvocado: resultado.modeloInvocado, fuentes: resultado.fuentes.filter(f => f.juego === resultado.juego) }
+      setRespuesta(verificada)
+      setHistorial(previos => {
+        const anteriores = previos.filter(t => t.juego === resultado.juego && t.consultaId !== resultado.id)
+        return [...anteriores, { consultaId: resultado.id, juego: resultado.juego, pregunta: preguntaActual, respuesta: verificada }].slice(-10)
+      })
+      setEstado(verificada.sinRespuesta ? 'ausencia' : 'respuesta')
+    } catch (e) { setError((e as Error).message); setEstado('error') }
+    finally { enCurso.current = false }
+  }
+  async function consultarDiagnostico(soloRecuperar = false) {
     if (enCurso.current || umbral === null || !pregunta.trim()) return
     enCurso.current = true
     setEscribiendo(false); setError(''); setRespuesta(null)
@@ -206,27 +243,31 @@ export default function App() {
         <p id="ayuda-pregunta" className="helper">Enter para preguntar · Shift+Enter para agregar una línea. {juegoActivo ? 'Para cambiar de juego, mencioná otro por su nombre.' : 'Incluí el nombre de un solo juego.'}</p>
       </form>
       <Historial key={juegoActivo?.juego ?? 'nueva'} turnos={historial} />
-      <details className="testing"><summary>Modo de pruebas <span>AJUSTES Y RECUPERACIÓN</span></summary>
+      {diagnosticos && <details className="testing"><summary>Modo de pruebas <span>AJUSTES Y RECUPERACIÓN</span></summary>
+        <label className="helper"><input type="checkbox" checked={evaluacion} disabled={ocupado} onChange={e => {
+          setEvaluacion(e.target.checked); invalidar(); setHistorial([]); setJuegoActivo(null)
+        }} /> Evaluar por etapas</label>
+        <p className="helper">El flujo normal se coordina en el servidor. Activá la evaluación para probar etapas con una cuota separada; estos controles no cambian la configuración de la operación pública.</p>
         <div className="test-controls">
           <div><label htmlFor="umbral">Umbral de similitud</label><output htmlFor="umbral">{umbral === null ? 'Cargando…' : umbral.toFixed(2)}</output>
-            <input id="umbral" type="range" min="0" max="1" step="0.01" value={umbral ?? 0} disabled={ocupado || umbral === null} onChange={e => cambiarUmbral(Number(e.target.value))} /></div>
-          <label htmlFor="cantidad">Cantidad de fragmentos candidatos<select id="cantidad" value={k} disabled={ocupado} onChange={e => { setK(Number(e.target.value)); invalidar(true) }}>{[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map(n => <option key={n} value={n}>{n} candidato{n > 1 ? 's' : ''}</option>)}</select></label>
-          <label htmlFor="modo-contexto">Contexto para responder<select id="modo-contexto" value={modoContexto} disabled={ocupado} onChange={e => cambiarModo(e.target.value as 'secciones' | 'fragmentos')}>
+            <input id="umbral" type="range" min="0" max="1" step="0.01" value={umbral ?? 0} disabled={ocupado || !evaluacion || umbral === null} onChange={e => cambiarUmbral(Number(e.target.value))} /></div>
+          <label htmlFor="cantidad">Cantidad de fragmentos candidatos<select id="cantidad" value={k} disabled={ocupado || !evaluacion} onChange={e => { setK(Number(e.target.value)); invalidar(true) }}>{[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map(n => <option key={n} value={n}>{n} candidato{n > 1 ? 's' : ''}</option>)}</select></label>
+          <label htmlFor="modo-contexto">Contexto para responder<select id="modo-contexto" value={modoContexto} disabled={ocupado || !evaluacion} onChange={e => cambiarModo(e.target.value as 'secciones' | 'fragmentos')}>
             <option value="secciones">Completar secciones</option><option value="fragmentos">Solo fragmentos candidatos</option>
           </select></label>
         </div>
         <p className="helper">Los candidatos localizan temas; el contexto puede incluir más fragmentos para completar esas secciones. El umbral y el modo actualizan la selección localmente. Cambiar la pregunta o la cantidad de candidatos requiere buscar de nuevo.</p>
         <p className="helper">Para evaluar por etapas, recuperá sin generar y ajustá el corte antes de pedir una respuesta. En seguimientos, recuperar incluye una llamada al modelo para interpretar la pregunta.</p>
-        <button disabled={ocupado || umbral === null || !pregunta.trim()} onClick={() => void consultar(true)}>Recuperar sin generar</button>
+        <button disabled={ocupado || !evaluacion || umbral === null || !pregunta.trim()} onClick={() => { setEvaluacion(true); void consultarDiagnostico(true) }}>Recuperar sin generar</button>
         {recuperacion ? <>
           <p className="test-summary">{recuperacion.juego} · {seleccion.aceptados.length} de {recuperacion.resultados.length} candidatos aceptados · {seleccion.ids.length} fragmentos de contexto</p>
           <p className="helper">Baraja para el gaucho: {recuperacion.metadatos.baraja}. {recuperacion.metadatos.nota}</p>
-          <button disabled={ocupado || seleccion.ids.length === 0} onClick={() => void consultar()}>Generar respuesta con {seleccion.ids.length} fragmentos</button>
+          <button disabled={ocupado || !evaluacion || seleccion.ids.length === 0} onClick={() => void consultarDiagnostico()}>Generar respuesta con {seleccion.ids.length} fragmentos</button>
         </> : null}
         <DepuracionConsulta pregunta={pregunta.trim()} recuperacion={recuperacion} seleccion={seleccion} contexto={contextoRecuperacion}
           respuesta={respuesta} estado={estado} error={error} umbral={umbral} modo={modoContexto} />
         <p className="helper">La similitud no garantiza que un texto contenga la respuesta.</p>
-      </details>
+      </details>}
     </main>
     <footer><span>ENTRE CARTAS</span><p>Respuestas apoyadas en el corpus local. Si la regla no está, te lo decimos.</p><span aria-hidden="true">♣ ♦ ♠ ♥</span></footer>
     </div>

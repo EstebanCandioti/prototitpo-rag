@@ -222,7 +222,7 @@ it('al terminar el sombrero, React mantiene la respuesta y sus fuentes sin volve
     const cuerpo = ruta.endsWith('/juegos') ? { juegos: ['El Truco'], umbralInicial: .55 }
       : ruta.endsWith('/detectar') ? { juego: 'El Truco', metadatos: { baraja: 'espanola', nota: 'Revisada' } }
       : ruta.endsWith('/recuperar') ? { juego: 'El Truco', metadatos: { baraja: 'espanola', nota: 'Revisada' }, resultados: [fuente] }
-      : { respuesta: 'La respuesta sigue visible.', sinRespuesta: false, modeloInvocado: true, fuentes: [fuente] }
+      : { id: 'consulta-simulada', estado: 'respondida', juego: 'El Truco', baraja: 'espanola', respuesta: 'La respuesta sigue visible.', modeloInvocado: true, fuentes: [fuente] }
     return { ok: true, headers: new Headers({ 'Content-Type': 'application/json' }), json: async () => cuerpo }
   }))
   render(<App />); await listo()
@@ -235,7 +235,7 @@ it('al terminar el sombrero, React mantiene la respuesta y sus fuentes sin volve
   expect(screen.getByText('La respuesta sigue visible.')).toBeTruthy()
   expect(screen.getByText(/Fuentes consultadas/)).toBeTruthy()
   await act(() => vi.advanceTimersByTimeAsync(5000))
-  expect(solicitudes.filter(r => r.endsWith('/responder'))).toHaveLength(1)
+  expect(solicitudes.filter(r => r.endsWith('/v1/consultas'))).toHaveLength(1)
 })
 
 it('después del cierre, enfocar y salir mantiene atención de 1 s sin repetir la respuesta', async () => {

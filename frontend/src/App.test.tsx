@@ -29,7 +29,7 @@ beforeEach(() => {
     let error: string | null = null
     let cuerpo: unknown
     const fuentesJuego = juegoDevuelto === 'El Truco' ? fragmentos : fragmentos.map(f => ({ ...f, id: f.id + 20, juego: juegoDevuelto, origen: 'https://example.org/poker' }))
-    if (ruta === '/api/juegos') cuerpo = { juegos: ['El Truco'], umbralInicial: .55 }
+    if (ruta === '/api/juegos') cuerpo = { juegos: ['El Truco'], umbralInicial: .55, diagnosticosHabilitados: true }
     else if (ruta === '/api/detectar') {
       error = deteccionError
       cuerpo = { juego: juegoDevuelto, metadatos: { baraja: barajaDetectada, nota: 'Corpus revisado' } }
@@ -52,6 +52,7 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 async function preparar() {
   render(<App />)
   await screen.findByText('0.55')
+  fireEvent.click(screen.getByLabelText('Evaluar por etapas'))
   const campo = screen.getByRole('textbox')
   fireEvent.change(campo, { target: { value: 'En el Truco, ¿cómo es el envido?' } })
   return campo
@@ -64,7 +65,7 @@ async function recuperarPrueba() {
   await screen.findByText('Presioná Enter para consultar las reglas con la selección actual.')
 }
 describe('consulta RAG', () => {
-  it('Enter recupera y responde automáticamente sin botones en el flujo principal, con fuentes seleccionadas', async () => {
+  it('en evaluación, Enter coordina las etapas con fuentes seleccionadas', async () => {
     await preparar(); enter()
     await screen.findByText('Respuesta generada.', { selector: '.conversation .answer' })
     expect(pedidos.map(p => p.ruta)).toEqual(['/api/juegos', '/api/detectar', '/api/recuperar', '/api/responder'])
