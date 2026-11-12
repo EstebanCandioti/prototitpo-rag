@@ -226,7 +226,8 @@ export default function App() {
       {configError && <div className="config-error" role="alert">{configError} <button onClick={() => void cargarConfiguracion()}>Reintentar conexión</button></div>}
       <section className="conversation" aria-label="Consulta de reglas" aria-busy={ocupado}>
         <div className={`bubble ${estado === 'error' ? 'bubble-error' : ''}`}>
-          <p className="bubble-label">{juegoDetectado?.juego ?? juegoActivo?.juego ?? 'EL GAUCHO DICE'}</p>
+          {(juegoDetectado?.juego ?? juegoActivo?.juego) &&
+            <p className="bubble-label">{juegoDetectado?.juego ?? juegoActivo?.juego}</p>}
           <div role={estado === 'error' ? 'alert' : 'status'} aria-live="polite" className="answer">{mensaje}</div>
         </div>
         <div className="gaucho-stage">
