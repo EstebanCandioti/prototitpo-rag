@@ -7,7 +7,18 @@ import { DepuracionConsulta } from './DepuracionConsulta'
 import { seleccionarContexto } from '../../seleccionar-contexto.mjs'
 import type { Estado, Recuperacion, Respuesta, Fuente, JuegoDetectado, ContextoConversacion, TurnoConversacion, Reformulacion } from './types'
 
-const ausencia = 'No lo encuentro en los documentos'
+const ausencia = 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.'
+const pensando = 'A ver, dejame pensarlo un momento…'
+function normalizarNombre(texto: string) {
+  return texto.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+function fraseAlPensar(pregunta: string, juegoActivo: string | undefined, ultimoJuego: string | undefined, juegos: string[]) {
+  if (!juegoActivo || ultimoJuego !== juegoActivo) return pensando
+  const consulta = ` ${normalizarNombre(pregunta)} `
+  const otroJuego = juegos.some(juego => juego !== juegoActivo &&
+    consulta.includes(` ${normalizarNombre(juego).replace(/^(el|la|los) /, '')} `))
+  return otroJuego ? pensando : `Sí, seguimos con ${juegoActivo}. Dejame pensar…`
+}
 export function Fuentes({ fuentes }: { fuentes: Fuente[] }) {
   const grupos = new Map<string, Fuente[]>()
   for (const fuente of fuentes) {
@@ -60,6 +71,7 @@ export default function App() {
   const [reformulacion, setReformulacion] = useState<Reformulacion | null>(null)
   const [recuperacion, setRecuperacion] = useState<Recuperacion | null>(null)
   const [respuesta, setRespuesta] = useState<Respuesta | null>(null)
+  const [mensajeEspera, setMensajeEspera] = useState(pensando)
   const [error, setError] = useState('')
   const [configError, setConfigError] = useState('')
   const [juegos, setJuegos] = useState<string[]>([])
@@ -88,6 +100,7 @@ export default function App() {
     enCurso.current = true
     setEscribiendo(false); setError(''); setRespuesta(null); setRecuperacion(null); setEstado('deteccion')
     const preguntaActual = pregunta.trim()
+    setMensajeEspera(fraseAlPensar(preguntaActual, juegoActivo?.juego, historial.at(-1)?.juego, juegos))
     if (!solicitudPublica.current) {
       const anterior = historial.at(-1)?.consultaId
       solicitudPublica.current = { clave: crypto.randomUUID(), datos: { pregunta: preguntaActual,
@@ -119,6 +132,7 @@ export default function App() {
     if (enCurso.current || umbral === null || !pregunta.trim()) return
     enCurso.current = true
     setEscribiendo(false); setError(''); setRespuesta(null)
+    setMensajeEspera(fraseAlPensar(pregunta.trim(), juegoActivo?.juego, historial.at(-1)?.juego, juegos))
     try {
       const preguntaActual = pregunta.trim()
       let contexto = contextoRecuperacion
@@ -194,16 +208,13 @@ export default function App() {
     setModoContexto(valor); setRespuesta(null); setError('')
     setEstado(recuperacion && !seleccionarContexto(recuperacion, umbral ?? 1, valor).ids.length ? 'ausencia' : 'reposo')
   }
-  const mensaje = estado === 'deteccion' ? 'Identificando el juego…'
-    : estado === 'reformulacion' ? 'Estoy interpretando tu pregunta con lo que veníamos conversando.'
-    : estado === 'busqueda' ? 'Dejame que me acuerde...'
-    : estado === 'generacion' ? 'Creo que ya me acuerdo como era, che'
+  const mensaje = ocupado ? mensajeEspera
     : estado === 'error' ? error
     : estado === 'ausencia' ? ausencia
     : respuesta ? respuesta.respuesta
     : recuperacion ? 'Presioná Enter para consultar las reglas con la selección actual.'
-    : juegoActivo ? `¿Qué más querés saber sobre ${juegoActivo.juego}?`
-    : 'Tenes alguna duda? Decime y lo vemo '
+    : juegoActivo ? `¿Qué más querés saber de ${juegoActivo.juego}?`
+    : '¿Qué juego tenés en mente? Preguntame y lo vemos.'
   return <div className="app-shell">
     <JuegosSidebar juegos={juegos} juegoActual={juegoDetectado?.juego ?? juegoActivo?.juego}
       cargando={umbral === null && !configError} error={Boolean(configError)} />

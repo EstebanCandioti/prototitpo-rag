@@ -89,7 +89,7 @@ Respuesta HTTP 200 de ejemplo:
 
 El ID del fragmento y su texto en este ejemplo son ilustrativos; los reales salen de SQL. `baraja` es `espanola`, `inglesa-francesa` o `general`, según los metadatos revisados del juego. Las fuentes conservan solo `id`, `juego`, `seccion`, `origen` y `texto`; nunca las construye el LLM. Son los fragmentos enviados como contexto, no una afirmación de que cada uno fue citado expresamente por el modelo.
 
-Abstención: mismo contrato, `estado: "abstencion"`, texto `No lo encuentro en los documentos.` y `fuentes: []`. `modeloInvocado` indica si hubo una llamada al modelo de chat, incluyendo una posible reformulación. Si ningún candidato supera el corte, no se invoca al generador; en un seguimiento pudo haber sido necesaria la interpretación previa.
+Abstención: mismo contrato, `estado: "abstencion"`, texto `Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.` y `fuentes: []`. `modeloInvocado` indica si hubo una llamada al modelo de chat, incluyendo una posible reformulación. Si ningún candidato supera el corte, no se invoca al generador; en un seguimiento pudo haber sido necesaria la interpretación previa.
 
 `GET /api/juegos` sigue disponible para cargar la lista y las capacidades. Añade `apiVersion: 1`, `diagnosticosHabilitados` y `autenticacion`. No habilita al cliente a elegir parámetros del RAG.
 

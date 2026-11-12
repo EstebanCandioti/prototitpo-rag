@@ -24,7 +24,7 @@ async function preparar(t,opciones={}){
   if(opciones.esperarChat)await opciones.esperarChat;
   if(opciones.transporte)throw new Error('Red interrumpida');
   const interpretacion=cuerpo.messages[0].content.startsWith('TAREA: REFORMULAR');
-  const texto=interpretacion?'JSON_REEMPLAZAR':opciones.abstencion?'No lo encuentro en los documentos.':'El truco aceptado vale dos puntos.';
+  const texto=interpretacion?'JSON_REEMPLAZAR':opciones.abstencion?'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.':'El truco aceptado vale dos puntos.';
   return new Response(JSON.stringify(opciones.errorLlm?{error:{message:'detalle privado proveedor'}}:{model:'modelo-prueba',usage:{prompt_tokens:100,completion_tokens:20,prompt_tokens_details:{cached_tokens:10}},
    choices:[{message:{content:interpretacion?JSON.stringify({pregunta:'¿Cuántos puntos vale el canto de truco en El Truco?'}):texto}}]}),{status:opciones.errorLlm?503:200,headers:{'Content-Type':'application/json'}});
  }});

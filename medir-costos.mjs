@@ -96,7 +96,7 @@ for (const caso of elegidos) {
       registro.caracteresContexto = fragmentos.length;
       const prompt = construirPrompt(plantilla, { pregunta: caso.pregunta, fragmentos, contexto: caso.contexto, preguntaResuelta });
       registro.respuesta = limpiarRespuesta(await responderMedido(prompt, 'respuesta'));
-    } else registro.respuesta = 'No lo encuentro en los documentos';
+    } else registro.respuesta = 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.';
   } catch (error) {
     registro.error = error.message.includes('API') ? error.message : 'No se pudo completar esta muestra.';
   }

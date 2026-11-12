@@ -56,7 +56,7 @@ it('la continuidad envía solo el ID del intercambio anterior; nueva conversaci�
 it('un reintento tras fallo de red conserva clave y cuerpo y no hace llamadas por etapas', async () => {
   let numero = 0
   responder = async () => { if (++numero === 1) throw new Error('conexión perdida'); return json(resultado) }
-  await preparar(); enter(); await screen.findByRole('alert'); enter()
+  await preparar(); enter(); expect((await screen.findByRole('alert')).textContent).toContain('Ahora no puedo responderte bien. Probá de nuevo en un momento.'); enter()
   await screen.findByText('Vale dos puntos.', { selector: '.conversation .answer' })
   expect(clave(0)).toBe(clave(1)); expect(cuerpo(0)).toEqual(cuerpo(1))
 })
@@ -75,20 +75,29 @@ it('la cuota agotada y los errores del servidor se muestran sin inventar respues
   await preparar(); enter(); expect((await screen.findByRole('alert')).textContent).toContain('cuota diaria')
   expect(screen.queryByText(/Fuentes consultadas/)).toBeNull(); expect(screen.getByTestId('gaucho').dataset.estado).toBe('error')
 })
+it('un error técnico del servidor conserva el tono del gaucho', async () => {
+  responder = async () => json({ error: 'El proveedor no está disponible.', codigo: 'LLM_NO_DISPONIBLE' }, 503)
+  await preparar(); enter()
+  expect((await screen.findByRole('alert')).textContent).toContain('Ahora no puedo responderte bien. Probá de nuevo en un momento.')
+})
 it('la abstención conserva el estado visual y no muestra fuentes', async () => {
-  responder = async () => json({ ...resultado, estado: 'abstencion', respuesta: 'No lo encuentro en los documentos.', modeloInvocado: false, fuentes: [] })
-  await preparar(); enter(); await screen.findByText('No lo encuentro en los documentos')
+  responder = async () => json({ ...resultado, estado: 'abstencion', respuesta: 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.', modeloInvocado: false, fuentes: [] })
+  await preparar(); enter(); await screen.findByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')
   expect(screen.getByTestId('gaucho').dataset.estado).toBe('ausencia'); expect(screen.queryByText(/Fuentes consultadas/)).toBeNull()
 })
 it('el stream cambia baraja y estados antes de entregar el resultado, sin nuevas peticiones', async () => {
   let controlador: ReadableStreamDefaultController<Uint8Array>
   responder = async () => new Response(new ReadableStream<Uint8Array>({ start(c) { controlador = c } }), { headers: { 'Content-Type': 'application/x-ndjson' } })
   await preparar(); enter(); await waitFor(() => expect(consultas()).toHaveLength(1))
+  expect(screen.getByText('A ver, dejame pensarlo un momento…', { selector: '.conversation .answer' })).toBeTruthy()
   async function emitir(evento: unknown) { await act(async () => { controlador.enqueue(new TextEncoder().encode(JSON.stringify(evento) + '\n')) }) }
   await emitir({ tipo: 'juego', juego: 'Poker', baraja: 'inglesa-francesa' })
   expect(screen.getByTestId('gaucho').dataset.baraja).toBe('inglesa-francesa')
+  expect(screen.getByText('A ver, dejame pensarlo un momento…', { selector: '.conversation .answer' })).toBeTruthy()
   await emitir({ tipo: 'etapa', estado: 'reformulacion' }); expect(screen.getByTestId('gaucho').dataset.estado).toBe('reformulacion')
+  expect(screen.getByText('A ver, dejame pensarlo un momento…', { selector: '.conversation .answer' })).toBeTruthy()
   await emitir({ tipo: 'etapa', estado: 'generacion' }); expect(screen.getByTestId('gaucho').dataset.estado).toBe('generacion')
+  expect(screen.getByText('A ver, dejame pensarlo un momento…', { selector: '.conversation .answer' })).toBeTruthy()
   await emitir({ tipo: 'resultado', consulta: { ...resultado, juego: 'Poker', baraja: 'inglesa-francesa', respuesta: 'Cinco cartas.', fuentes: [] } })
   await act(async () => { controlador.close() }); await screen.findByText('Cinco cartas.', { selector: '.conversation .answer' })
   expect(consultas()).toHaveLength(1); expect(screen.getByTestId('gaucho').dataset.estado).toBe('respuesta')

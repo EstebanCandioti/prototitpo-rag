@@ -42,7 +42,7 @@ beforeEach(() => {
         preguntaResuelta: datos.preguntaResuelta, consultaBusqueda: datos.preguntaResuelta ?? datos.pregunta }
     } else {
       error = responderError
-      cuerpo = { respuesta: sinRespuesta ? 'No lo encuentro en los documentos.' : textoRespuesta, sinRespuesta,
+      cuerpo = { respuesta: sinRespuesta ? 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.' : textoRespuesta, sinRespuesta,
         modeloInvocado: true, fuentes: sinRespuesta ? [] : fuentesJuego.filter(f => datos.ids.includes(f.id)) }
     }
     return new Response(JSON.stringify(error ? { error } : cuerpo), { status: error ? 500 : 200, headers: { 'Content-Type': 'application/json' } })
@@ -93,7 +93,7 @@ describe('consulta RAG', () => {
     await recuperarPrueba()
     expect(pedidos).toHaveLength(3)
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.9' } })
-    expect(screen.getByText('No lo encuentro en los documentos')).toBeTruthy()
+    expect(screen.getByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')).toBeTruthy()
     expect(pedidos).toHaveLength(3)
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.6' } })
     expect(pedidos).toHaveLength(3)
@@ -110,7 +110,7 @@ describe('consulta RAG', () => {
   it('si ningún fragmento pasa el corte, Enter muestra abstención sin pedir respuesta al modelo', async () => {
     await preparar()
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.95' } })
-    enter(); await screen.findByText('No lo encuentro en los documentos')
+    enter(); await screen.findByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')
     expect(pedidos.map(p => p.ruta)).toEqual(['/api/juegos', '/api/detectar', '/api/recuperar'])
   })
   it('invalida recuperación al cambiar cantidad y busca de nuevo al enviar', async () => {
@@ -141,7 +141,7 @@ describe('consulta RAG', () => {
   })
   it('muestra abstención del modelo sin fuentes', async () => {
     await preparar(); sinRespuesta = true; enter()
-    await screen.findByText('No lo encuentro en los documentos')
+    await screen.findByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')
     expect(screen.queryByText(/Fuentes consultadas/)).toBeNull()
     expect(document.querySelector('[data-estado="ausencia"]')).toBeTruthy()
   })
@@ -162,10 +162,10 @@ describe('consulta RAG', () => {
       return original(ruta, opciones)
     })
     await preparar(); enter(); enter()
-    await screen.findByText('Dejame que me acuerde...')
+    await screen.findByText('A ver, dejame pensarlo un momento…')
     expect(document.querySelector('[data-estado="busqueda"]')).toBeTruthy()
     expect((screen.getByRole('textbox') as HTMLTextAreaElement).disabled).toBe(true)
-    completar!(); await screen.findByText('Creo que ya me acuerdo como era, che')
+    completar!(); await screen.findByText('A ver, dejame pensarlo un momento…')
     expect(document.querySelector('[data-estado="generacion"][data-baraja="espanola"]')).toBeTruthy()
     enter()
     completar!(); await screen.findByText('Respuesta generada.', { selector: '.conversation .answer' })
@@ -351,7 +351,7 @@ describe('interpretación del seguimiento antes de recuperar', () => {
       return original(ruta, opciones)
     })
     fireEvent.change(campo, { target: { value: 'y cuanto vale?' } }); enter()
-    await screen.findByText('Estoy interpretando tu pregunta con lo que veníamos conversando.')
+    await screen.findByText('Sí, seguimos con El Truco. Dejame pensar…')
     expect(document.querySelector('[data-estado="reformulacion"]')).toBeTruthy()
     expect(document.querySelector('canvas')?.getAttribute('data-accion')).toBe('pensando')
     expect((campo as HTMLTextAreaElement).disabled).toBe(true)
@@ -385,7 +385,7 @@ describe('interpretación del seguimiento antes de recuperar', () => {
     const campo = await iniciarSecuencia()
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.95' } })
     fireEvent.change(campo, { target: { value: 'y cuanto vale?' } }); enter()
-    await screen.findByText('No lo encuentro en los documentos')
+    await screen.findByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')
     expect(pedidos.filter(p => p.ruta.endsWith('reformular'))).toHaveLength(1)
     expect(pedidos.filter(p => p.ruta.endsWith('responder'))).toHaveLength(1)
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.55' } })
@@ -444,7 +444,7 @@ describe('contexto por secciones y diagnóstico', () => {
     expect(pedidos.filter(p => p.ruta.endsWith('recuperar'))).toHaveLength(1)
     fireEvent.change(screen.getByLabelText(/Umbral de similitud/), { target: { value: '.9' } })
     const antes = pedidos.length; enter()
-    await screen.findByText('No lo encuentro en los documentos')
+    await screen.findByText('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.')
     expect(pedidos).toHaveLength(antes)
   })
   it('el historial guarda el diagnóstico de la selección usada aunque cambie el corte actual', async () => {

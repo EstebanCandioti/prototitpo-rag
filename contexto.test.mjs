@@ -123,6 +123,8 @@ test('retirar fuentes intercaladas no elimina el resto de una respuesta válida'
   const limpio = limpiarRespuesta('Truco: 2 puntos.\nFuente: inventada\nRetruco: 3 puntos.\nFuente:\n--- Otra cita ---\n\nVale cuatro: 4 puntos.');
   assert.match(limpio, /Truco: 2/); assert.match(limpio, /Retruco: 3/); assert.match(limpio, /Vale cuatro: 4/);
   assert.doesNotMatch(limpio, /inventada|Otra cita|Fuente/);
+  assert.equal(esAbstencion('Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.'), true);
+  assert.equal(esAbstencion('No encontré esa respuesta en las reglas disponibles.'), true);
   assert.equal(esAbstencion('No lo encuentro en los documentos.'), true);
   assert.equal(esAbstencion('No lo encuentro en los documentos.\nTruco: dos puntos.'), false);
 });

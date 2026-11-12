@@ -91,7 +91,7 @@ test('sin juego, varios juegos, selección ajena, duplicada o vacía', async t =
   assert.deepEqual(vacio.datos.fuentes, []); assert.equal(llamadas.prompts.length, 0);
 });
 test('abstención del modelo no conserva fuentes', async t => {
-  const { post } = await iniciar(t, { responder: async () => 'No lo encuentro en los documentos.' });
+  const { post } = await iniciar(t, { responder: async () => 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.' });
   const r = await post('responder', { pregunta: '¿Qué dice Truco?', ids: [1] });
   assert.equal(r.datos.sinRespuesta, true); assert.deepEqual(r.datos.fuentes, []);
 });

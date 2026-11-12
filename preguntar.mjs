@@ -52,7 +52,7 @@ for (const r of resultados) {
 const utiles = resultados.filter(r => r.similitud >= UMBRAL);
 if (utiles.length === 0) {
   console.log("\nRESPUESTA");
-  console.log("No lo encuentro en los documentos.");
+  console.log("Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.");
   console.log(`(ningún fragmento llegó al umbral de ${UMBRAL}: no se llamó al modelo)`);
   process.exit(0);
 }

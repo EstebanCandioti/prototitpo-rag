@@ -5,7 +5,7 @@ import { construirPlanContexto, limitesContexto } from '../../seleccionar-contex
 import { formatearContexto, limpiarRespuesta, esAbstencion } from '../../contexto-respuesta.mjs';
 import { errorAplicacion } from '../errores.mjs';
 
-export const sinRespuesta = 'No lo encuentro en los documentos.';
+export const sinRespuesta = 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.';
 export function validarPregunta(datos) {
   const pregunta = typeof datos?.pregunta === 'string' ? datos.pregunta.trim() : '';
   if (!pregunta || pregunta.length > 1000) throw errorAplicacion(400, 'PREGUNTA_INVALIDA', 'Escribí una pregunta de hasta 1000 caracteres');

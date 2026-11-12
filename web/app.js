@@ -154,7 +154,7 @@ generarBtn.addEventListener("click", async () => {
   const ids = seleccionados().map(r => r.id);
   const estaRespuesta = ++version;
   generarBtn.disabled = true;
-  respuestaEl.textContent = ids.length ? "Generando respuesta…" : "No lo encuentro en los documentos.";
+  respuestaEl.textContent = ids.length ? "Generando respuesta…" : "Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.";
   estado.textContent = ids.length ? "El modelo está leyendo los fragmentos seleccionados." : "Ningún fragmento superó el umbral; no se llamó al modelo.";
   if (!ids.length) {
     generarBtn.disabled = false;

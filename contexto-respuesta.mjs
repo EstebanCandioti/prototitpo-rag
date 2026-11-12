@@ -33,5 +33,5 @@ export function limpiarRespuesta(respuesta) {
 }
 
 export function esAbstencion(respuesta) {
-  return /^No lo encuentro en los documentos[.!]?$/i.test(respuesta.trim());
+  return /^(?:Esa regla no la tengo clara\. Prefiero no decirte cualquier cosa|No encontr[eé] esa respuesta en las reglas disponibles|No lo encuentro en los documentos)[.!]?$/i.test(respuesta.trim());
 }
