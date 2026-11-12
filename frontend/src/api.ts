@@ -1,5 +1,6 @@
 import type { ConsultaPublica, EventoConsulta } from './types'
 const errorTecnico = 'Ahora no puedo responderte bien. Probá de nuevo en un momento.'
+const errorConexion = 'No pude conectarme con el servidor. Revisá si sigue iniciado y volvé a intentar.'
 export async function api<T>(ruta: string, datos?: unknown): Promise<T> {
   let res: Response
   try {
@@ -22,21 +23,24 @@ export async function consultarPublica(datos: { pregunta: string; consultaAnteri
     res = await fetch('/api/v1/consultas', { method: 'POST', headers: {
       'Content-Type': 'application/json', Accept: 'application/x-ndjson', 'Idempotency-Key': clave,
     }, body: JSON.stringify(datos) })
-  } catch { throw new Error(errorTecnico) }
+  } catch { throw new Error(errorConexion) }
   const tipo = res.headers.get('content-type') ?? ''
   if (tipo.includes('application/json')) {
     const cuerpo = await res.json()
-    if (!res.ok) throw new Error(res.status >= 500 ? errorTecnico : cuerpo.error ?? errorTecnico)
+    if (!res.ok) throw new Error(cuerpo.error ?? errorTecnico)
     return cuerpo as ConsultaPublica
   }
-  if (!res.ok || !tipo.includes('application/x-ndjson') || !res.body) throw new Error(errorTecnico)
+  if (!res.ok || !tipo.includes('application/x-ndjson') || !res.body) {
+    if ([502, 503, 504].includes(res.status)) throw new Error('El servidor de la demo no respondió. Revisá la terminal del Codespace y volvé a intentar.')
+    throw new Error(errorTecnico)
+  }
   const lector = res.body.getReader()
   const decoder = new TextDecoder()
   let pendiente = '', resultado: ConsultaPublica | undefined
   function procesar(linea: string) {
     if (!linea.trim()) return
     const evento = JSON.parse(linea) as EventoConsulta
-    if (evento.tipo === 'error') throw new Error(evento.estadoHttp >= 500 ? errorTecnico : evento.error)
+    if (evento.tipo === 'error') throw new Error(evento.error || errorTecnico)
     onEvento(evento)
     if (evento.tipo === 'resultado') resultado = evento.consulta
   }
@@ -50,6 +54,6 @@ export async function consultarPublica(datos: { pregunta: string; consultaAnteri
     }
     pendiente += decoder.decode(); procesar(pendiente)
   } finally { await lector.cancel().catch(() => {}); lector.releaseLock() }
-  if (!resultado) throw new Error(errorTecnico)
+  if (!resultado) throw new Error('Se cortó la conexión antes de recibir la respuesta. Probá de nuevo.')
   return resultado
 }

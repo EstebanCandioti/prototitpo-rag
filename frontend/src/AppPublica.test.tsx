@@ -56,7 +56,7 @@ it('la continuidad envía solo el ID del intercambio anterior; nueva conversaci�
 it('un reintento tras fallo de red conserva clave y cuerpo y no hace llamadas por etapas', async () => {
   let numero = 0
   responder = async () => { if (++numero === 1) throw new Error('conexión perdida'); return json(resultado) }
-  await preparar(); enter(); expect((await screen.findByRole('alert')).textContent).toContain('Ahora no puedo responderte bien. Probá de nuevo en un momento.'); enter()
+  await preparar(); enter(); expect((await screen.findByRole('alert')).textContent).toContain('No pude conectarme con el servidor.'); enter()
   await screen.findByText('Vale dos puntos.', { selector: '.conversation .answer' })
   expect(clave(0)).toBe(clave(1)); expect(cuerpo(0)).toEqual(cuerpo(1))
 })
@@ -75,10 +75,15 @@ it('la cuota agotada y los errores del servidor se muestran sin inventar respues
   await preparar(); enter(); expect((await screen.findByRole('alert')).textContent).toContain('cuota diaria')
   expect(screen.queryByText(/Fuentes consultadas/)).toBeNull(); expect(screen.getByTestId('gaucho').dataset.estado).toBe('error')
 })
-it('un error técnico del servidor conserva el tono del gaucho', async () => {
+it('un error técnico del servidor muestra su causa pública', async () => {
   responder = async () => json({ error: 'El proveedor no está disponible.', codigo: 'LLM_NO_DISPONIBLE' }, 503)
   await preparar(); enter()
-  expect((await screen.findByRole('alert')).textContent).toContain('Ahora no puedo responderte bien. Probá de nuevo en un momento.')
+  expect((await screen.findByRole('alert')).textContent).toContain('El proveedor no está disponible.')
+})
+it('un 502 vacío del túnel señala el servidor de la demo', async () => {
+  responder = async () => new Response(null, { status: 502, headers: { 'Content-Type': 'text/html' } })
+  await preparar(); enter()
+  expect((await screen.findByRole('alert')).textContent).toContain('El servidor de la demo no respondió.')
 })
 it('la abstención conserva el estado visual y no muestra fuentes', async () => {
   responder = async () => json({ ...resultado, estado: 'abstencion', respuesta: 'Esa regla no la tengo clara. Prefiero no decirte cualquier cosa.', modeloInvocado: false, fuentes: [] })
@@ -101,6 +106,15 @@ it('el stream cambia baraja y estados antes de entregar el resultado, sin nuevas
   await emitir({ tipo: 'resultado', consulta: { ...resultado, juego: 'Poker', baraja: 'inglesa-francesa', respuesta: 'Cinco cartas.', fuentes: [] } })
   await act(async () => { controlador.close() }); await screen.findByText('Cinco cartas.', { selector: '.conversation .answer' })
   expect(consultas()).toHaveLength(1); expect(screen.getByTestId('gaucho').dataset.estado).toBe('respuesta')
+})
+it('un error del stream muestra el mensaje público del backend', async () => {
+  responder = async () => new Response(new ReadableStream<Uint8Array>({ start(c) {
+    c.enqueue(new TextEncoder().encode(JSON.stringify({ tipo: 'error', codigo: 'CHAT_NO_CONFIGURADO', estadoHttp: 503,
+      error: 'Falta configurar la clave o el modelo de chat en el servidor.' }) + '\n'))
+    c.close()
+  } }), { headers: { 'Content-Type': 'application/x-ndjson' } })
+  await preparar(); enter()
+  expect((await screen.findByRole('alert')).textContent).toContain('Falta configurar la clave o el modelo de chat en el servidor.')
 })
 it('un stream interrumpido permite reintentar con la misma clave', async () => {
   let numero = 0
