@@ -1,17 +1,19 @@
 // Identifica un nombre de juego escrito en la pregunta. Esto solo decide
 // qué metadato filtrar; la recuperación de reglas sigue siendo vectorial.
-export function detectarJuego(pregunta, juegos) {
-  const normalizar = texto => texto
+export function normalizarNombreJuego(texto) {
+  return texto
     .normalize("NFD")
     .replace(/\p{M}/gu, "")
     .toLowerCase()
     .replace(/[’'`´]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
 
-  const consulta = ` ${normalizar(pregunta)} `;
+export function detectarJuego(pregunta, juegos) {
+  const consulta = ` ${normalizarNombreJuego(pregunta)} `;
   const encontrados = juegos.filter(juego => {
-    const nombre = normalizar(juego);
+    const nombre = normalizarNombreJuego(juego);
     const sinArticulo = nombre.replace(/^(el|la|los) /, "");
     return consulta.includes(` ${nombre} `) || consulta.includes(` ${sinArticulo} `);
   });

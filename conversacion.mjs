@@ -1,4 +1,25 @@
-import { detectarJuego } from './detectar-juego.mjs';
+import { detectarJuego, normalizarNombreJuego } from './detectar-juego.mjs';
+
+function mencionaJuego(texto, juego) {
+  try { return detectarJuego(texto, [juego]) === juego; }
+  catch { return false; }
+}
+
+function focoExplicito(pregunta, juego, respuestaAnterior) {
+  const texto = normalizarNombreJuego(pregunta);
+  const nombre = normalizarNombreJuego(juego).replace(/^(el|la|los) /, '');
+  const patron = new RegExp(`(?:^| )(en|sobre|para|reglas de|como se juega(?: a| al)?|pasemos a|hablemos de|ahora(?: sobre)?|que dice) (?:el |la |los )?${nombre}(?= |$)`, 'g');
+  for (const coincidencia of texto.matchAll(patron)) {
+    const previo = texto.slice(0, coincidencia.index).trim();
+    // «como en el Tute» cita una comparación, no cambia el juego consultado.
+    if (coincidencia[1] === 'en' && /(?:^| )(?:como|igual que|tal como)$/.test(previo)) continue;
+    const resto = texto.slice(coincidencia.index + coincidencia[0].length).trimStart();
+    if (coincidencia[1] === 'en' && resto.startsWith('de ') &&
+        respuestaAnterior && mencionaJuego(respuestaAnterior, juego)) continue;
+    return true;
+  }
+  return false;
+}
 
 function contextoInvalido() {
   return Object.assign(new Error('El contexto de conversación no es válido. Iniciá una nueva conversación.'), { estado: 400 });
@@ -15,13 +36,18 @@ export function validarContexto(contexto, juegos) {
 }
 
 export function resolverConsulta(pregunta, contexto, juegos) {
-  // Se reutiliza la detección original, incluso para nombres con tildes y alias.
-  const mencionados = juegos.filter(juego => {
-    try { return detectarJuego(pregunta, [juego]) === juego; } catch { return false; }
-  });
+  const mencionados = juegos.filter(juego => mencionaJuego(pregunta, juego));
   let juego;
   try {
-    juego = mencionados.length || !contexto ? detectarJuego(pregunta, juegos) : contexto.juego;
+    if (!contexto) juego = detectarJuego(pregunta, juegos);
+    else {
+      const focos = mencionados.filter(nombre => focoExplicito(pregunta, nombre, contexto.respuesta));
+      if (focos.length === 1) juego = focos[0];
+      else if (focos.length > 1 || mencionados.length > 1) juego = detectarJuego(pregunta, juegos);
+      else if (!mencionados.length || mencionados[0] === contexto.juego) juego = contexto.juego;
+      else juego = contexto.respuesta && mencionaJuego(contexto.respuesta, mencionados[0])
+        ? contexto.juego : mencionados[0];
+    }
   } catch (error) {
     error.estado = 422;
     throw error;

@@ -192,6 +192,31 @@ test('mencionar otro juego descarta el historial y mantiene SQL y fuentes del nu
   assert.equal((await post('responder', { pregunta, contexto, ids: [1] })).status, 400);
 });
 
+test('tute como jugada del Guiñote conserva el juego; pedir reglas del Tute lo cambia', async t => {
+  const { post, llamadas } = await iniciar(t);
+  const contexto = { juego: 'El Guiñote', pregunta: '¿Cómo se gana en el Guiñote?',
+    respuesta: 'Se puede ganar con tute de reyes o caballos.' };
+  const pregunta = '¿Qué es el tute?';
+  assert.equal((await post('detectar', { pregunta, contexto })).datos.juego, 'El Guiñote');
+  assert.equal((await post('detectar', { pregunta: '¿Qué pasa en el tute de reyes?', contexto })).datos.juego, 'El Guiñote');
+  assert.equal((await post('detectar', { pregunta: '¿Qué pasa en el tute de caballos?', contexto })).datos.juego, 'El Guiñote');
+  const recuperacion = await post('recuperar', { pregunta, contexto, k: 2 });
+  assert.equal(recuperacion.datos.juego, 'El Guiñote');
+  assert.equal(llamadas.buscar.at(-1).juego, 'El Guiñote');
+  assert.match(recuperacion.datos.consultaBusqueda, /Juego: El Guiñote\nPregunta anterior:/);
+  const preguntaResuelta = 'En el Guiñote, ¿qué es el tute?';
+  const reformulada = await post('recuperar', { pregunta, contexto, preguntaResuelta, k: 2 });
+  assert.equal(reformulada.status, 200);
+  assert.equal(reformulada.datos.juego, 'El Guiñote');
+  assert.equal(reformulada.datos.consultaBusqueda, preguntaResuelta);
+  assert.equal((await post('responder', { pregunta, contexto, preguntaResuelta, ids: [] })).status, 200);
+  assert.equal((await post('recuperar', { pregunta, contexto, preguntaResuelta: '¿Cómo se juega al Tute?', k: 2 })).status, 400);
+  assert.equal((await post('detectar', { pregunta: 'En el Guiñote, ¿qué es el tute?', contexto })).datos.juego, 'El Guiñote');
+  assert.equal((await post('detectar', { pregunta: '¿Cómo se juega al Tute?', contexto })).datos.juego, 'Tute');
+  assert.equal((await post('detectar', { pregunta: '¿Qué es el tute?' })).datos.juego, 'Tute');
+  assert.equal((await post('detectar', { pregunta: '¿Qué diferencia hay entre el Guiñote y el Tute?', contexto })).status, 422);
+});
+
 test('repetir el juego conserva el tema del canto en la búsqueda y en la generación', async t => {
   const { post, llamadas } = await iniciar(t);
   const contexto = {
