@@ -30,6 +30,9 @@ const casos = [
     candidatos: [[seccion('Texas Hold’em','Descripción general'),.61]], alcance: 'general', respuesta: [/dos|2/i, /52/, /apuest/i, /combinaci[oó]n/i] },
   { nombre: 'Truco: reglas generales desde una sola coincidencia', juego: 'El Truco', pregunta: '¿Cómo se juega al Truco?',
     candidatos: [[291,.65]], respuesta: [/tres|3/i, /30|treinta/i, /envido/i] },
+  { nombre: 'Guiñote: victoria con tute de sotas o reyes', juego: 'El Guiñote', pregunta: '¿Cómo se gana en el Guiñote?',
+    candidatos: [[seccion('El Guiñote','Objetivo del juego'),.7]],
+    contextoContiene: /Tute de sotas/, respuesta: [/sotas/i, /reyes/i, /101/], respuestaNo: [/tute de caballos/i] },
   { nombre: 'Texas: abstenerse sin usar las combinaciones documentadas para otro juego', juego: 'Texas Hold’em',
     pregunta: '¿Qué combinaciones de cartas existen en Texas Holdem?',
     candidatos: [[seccion('Texas Hold’em','Objetivo del juego'),.68],[seccion('Texas Hold’em','Orden y valor de las cartas'),.64]], abstencion: true },
@@ -61,6 +64,7 @@ for (const caso of casos.filter(c => !filtro || c.nombre.includes(filtro))) {
       registro.duracionMs = Math.round(performance.now() - inicio);
       assert.equal(esAbstencion(registro.respuesta), Boolean(caso.abstencion));
       for (const esperado of caso.respuesta ?? []) assert.match(registro.respuesta, esperado);
+      for (const prohibido of caso.respuestaNo ?? []) assert.doesNotMatch(registro.respuesta, prohibido);
     }
   } catch (error) {
     registro.correcto = false;
